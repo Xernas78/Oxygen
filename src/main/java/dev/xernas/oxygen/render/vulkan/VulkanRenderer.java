@@ -1,9 +1,10 @@
-package dev.xernas.oxygen.render;
+package dev.xernas.oxygen.render.vulkan;
 
-import dev.xernas.oxygen.IOxygenLogic;
 import dev.xernas.oxygen.Oxygen;
+import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.exception.OxygenException;
-import dev.xernas.oxygen.render.vulkan.*;
+import dev.xernas.oxygen.render.IRenderer;
+import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.render.vulkan.command.CommandPool;
 import dev.xernas.oxygen.render.vulkan.device.Device;
 import dev.xernas.oxygen.render.vulkan.device.PhysicalDevice;
@@ -11,16 +12,15 @@ import dev.xernas.oxygen.render.vulkan.drawing.surface.Surface;
 import dev.xernas.oxygen.render.vulkan.drawing.SwapChain;
 import dev.xernas.oxygen.render.vulkan.command.GraphicsQueue;
 import dev.xernas.oxygen.render.vulkan.command.PresentQueue;
-import dev.xernas.oxygen.render.vulkan.model.Model;
-import dev.xernas.oxygen.render.vulkan.model.ModelData;
+import dev.xernas.oxygen.render.vulkan.model.VulkanModel;
 import dev.xernas.oxygen.render.vulkan.pipeline.PipelineCache;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Renderer implements IOxygenLogic {
+public class VulkanRenderer implements IRenderer {
 
-    private final List<Model> models;
+    private final List<VulkanModel> vulkanModels;
 
     private final Instance instance;
     private final CommandPool commandPool;
@@ -33,7 +33,7 @@ public class Renderer implements IOxygenLogic {
     private final PipelineCache pipelineCache;
     private final ForwardRenderActivity forwardRenderActivity;
 
-    public Renderer(Oxygen oxygen) {
+    public VulkanRenderer(Oxygen oxygen) {
         this.instance = new Instance(oxygen.getApplicationName(), oxygen.getVersion(), oxygen.debugEnabled());
         this.physicalDevice = new PhysicalDevice(instance);
         this.device = new Device(physicalDevice);
@@ -45,7 +45,18 @@ public class Renderer implements IOxygenLogic {
         this.pipelineCache = new PipelineCache(device);
         this.forwardRenderActivity = new ForwardRenderActivity(swapChain, commandPool, pipelineCache);
 
-        this.models = new ArrayList<>();
+        this.vulkanModels = new ArrayList<>();
+    }
+
+    @Override
+    public void render() throws OxygenException {
+        forwardRenderActivity.waitForFence();
+        swapChain.acquireNextImage();
+
+        forwardRenderActivity.recordCommandBuffer(vulkanModels);
+        forwardRenderActivity.submit(graphicsQueue);
+
+        swapChain.presentImage(presentQueue);
     }
 
     @Override
@@ -62,13 +73,14 @@ public class Renderer implements IOxygenLogic {
         forwardRenderActivity.init();
     }
 
+    @Override
     public void cleanup() throws OxygenException {
         presentQueue.waitIdle();
         graphicsQueue.waitIdle();
         device.waitIdle();
 
-        for (Model model : models) {
-            model.cleanup();
+        for (VulkanModel vulkanModel : vulkanModels) {
+            vulkanModel.cleanup();
         }
 
         pipelineCache.cleanup();
@@ -81,19 +93,17 @@ public class Renderer implements IOxygenLogic {
         instance.cleanup();
     }
 
-    public void loadModels(List<ModelData> modelDataList) throws OxygenException {
-        models.addAll(Model.transformModels(modelDataList, commandPool, graphicsQueue));
+    @Override
+    public void loadSceneObjects(List<SceneObject> sceneObjects) throws OxygenException {
+        for (SceneObject sceneObject : sceneObjects) {
+            loadSceneObject(sceneObject);
+        }
     }
 
-
-    public void render() throws OxygenException {
-        forwardRenderActivity.waitForFence();
-        swapChain.acquireNextImage();
-
-        forwardRenderActivity.recordCommandBuffer(models);
-        forwardRenderActivity.submit(graphicsQueue);
-
-        swapChain.presentImage(presentQueue);
+    @Override
+    public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
+        ModelRenderer modelRenderer = sceneObject.getBehavior(ModelRenderer.class);
+        if (modelRenderer != null) vulkanModels.add(VulkanModel.transformModel(modelRenderer.getModelData(), commandPool, graphicsQueue));
     }
 
 }

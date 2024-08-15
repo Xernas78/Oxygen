@@ -16,9 +16,9 @@ public class OLogger {
         stream.println("[Oxygen] [" + level + "] " + message);
     }
 
-    public void fatal(OxygenException e) throws OxygenException {
+    public void fatal(OxygenException e) {
         log(Level.FATAL, e.getMessage(), System.err);
-        throw e;
+        throw new RuntimeException(e);
     }
 
     public void warn(String message) {
@@ -42,7 +42,7 @@ public class OLogger {
     }
 
     public void debug(String message, Object obj) {
-        debug(message.replace("{}", obj.toString()));
+        debug(message.replace("{}", obj == null ? "null" : obj.toString()));
     }
 
 }

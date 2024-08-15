@@ -1,29 +1,34 @@
 package dev.xernas.oxygen;
 
 import dev.xernas.oxygen.engine.Scene;
+import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.resource.ResourceManager;
 import dev.xernas.oxygen.exception.GLFWException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.logging.OLogger;
-import dev.xernas.oxygen.render.Renderer;
+import dev.xernas.oxygen.render.IRenderer;
+import dev.xernas.oxygen.render.opengl.OGLRenderer;
+import dev.xernas.oxygen.render.utils.EmptyRenderer;
+import dev.xernas.oxygen.render.utils.Lib;
+import dev.xernas.oxygen.render.vulkan.VulkanRenderer;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GLUtil;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFWVulkan.glfwVulkanSupported;
-import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Oxygen {
 
-    private static final long NANOSECOND = 1000000000L;
-    private static final float FRAMERATE = 1000f;
-    private static final float FRAMETIME = 1.0f / FRAMERATE;
+    private static final long SECOND = 1000000000L;
+    private static final long MILLISSECOND = 1000000L;
+    private static final float TARGET_FRAMERATE = 1000f;
+    private static final float FRAMETIME = 1.0f / TARGET_FRAMERATE;
 
     public static final OLogger LOGGER = new OLogger();
+    public static final ResourceManager OXYGEN_RESOURCE_MANAGER = new ResourceManager(Oxygen.class);
 
     private final String applicationName;
     private final String version;
@@ -31,42 +36,52 @@ public class Oxygen {
     private final boolean debug;
 
     private final Window window;
-    private final Renderer renderer;
+    private final IRenderer renderer;
 
-    private final List<Scene> scenes;
+    private static final List<Scene> scenes = new ArrayList<>();
 
-    private boolean running = false;
-    private int fps;
-    private int currentSceneIndex = 0;
+    private static boolean running = false;
+    private static int fps;
+    private static int deltaTime;
+    private static Lib lib;
+    private static int currentSceneIndex = 0;
 
-    public Oxygen(String applicationName, String version, Window window, boolean vsync, boolean debug) {
+    private static int vulkanModelIdCounter = 0;
+
+    public Oxygen(String applicationName, String version, Window window, boolean vsync, boolean debug, Lib lib) {
         this.applicationName = applicationName;
         this.version = version;
         this.vsync = vsync;
         this.debug = debug;
+        Oxygen.lib = lib;
         this.window = window;
-        this.renderer = new Renderer(this);
-        this.scenes = new ArrayList<>();
+        if (lib == Lib.VULKAN) this.renderer = new VulkanRenderer(this);
+        else if (lib == Lib.OPENGL) this.renderer = new OGLRenderer(this);
+        else {
+            LOGGER.warn("Unsupported library, using empty renderer");
+            this.renderer = new EmptyRenderer();
+        }
     }
 
 
-    public void init() throws OxygenException {
+    public void init() {
         glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
         try {
             if (!glfwInit()) throw new GLFWException("Unable to initialize GLFW");
-            //TODO OpenGL
-            //if (!glfwVulkanSupported()) throw new GLFWException("Cannot find a compatible Vulkan installable client driver (ICD)");
+
+            if (lib == Lib.VULKAN) if (!glfwVulkanSupported()) throw new GLFWException("Cannot find a compatible Vulkan installable client driver (ICD)");
             window.init();
             renderer.init();
 
-            window.show();
+            if (debug) if (lib == Lib.OPENGL) GLUtil.setupDebugMessageCallback();
 
             if (scenes.isEmpty()) throw new OxygenException("Can't find any scene");
             scenes.get(currentSceneIndex).startObjects(this);
 
-            //TODO OpenGL init
+            window.show();
 
             loop();
+            window.hide();
             cleanup();
         } catch (OxygenException e) {
             LOGGER.fatal(e);
@@ -86,20 +101,24 @@ public class Oxygen {
             long passedTime = startTime - lastTime;
             lastTime = startTime;
 
-            unprocessedTime += passedTime / (float) NANOSECOND;
+            setDeltaTime((int) (passedTime / MILLISSECOND));
+            unprocessedTime += passedTime / (float) SECOND;
             frameCounter += passedTime;
 
-            //TODO SwapBuffers
-            window.pollEvents();
+            window.update();
 
             scenes.get(currentSceneIndex).inputObjects(this);
 
             while (unprocessedTime > FRAMETIME) {
                 render = true;
                 unprocessedTime -= FRAMETIME;
-                if (window.shouldClose()) stop();
-                if (frameCounter >= NANOSECOND) {
-                    scenes.get(currentSceneIndex).updateObjects(this);
+                if (window.shouldClose()) {
+                    stop();
+                    return;
+                }
+                scenes.get(currentSceneIndex).updateObjects(this);
+                if (frameCounter >= SECOND) {
+                    // Executes every second
                     setFps(frames);
                     frames = 0;
                     frameCounter = 0;
@@ -114,7 +133,6 @@ public class Oxygen {
     }
 
     private void cleanup() throws OxygenException {
-        scenes.get(currentSceneIndex).cleanupObjects();
         renderer.cleanup();
         window.cleanup();
         glfwTerminate();
@@ -129,21 +147,44 @@ public class Oxygen {
             LOGGER.warn("Scene index out of bounds");
             return;
         }
-        scenes.get(currentSceneIndex).cleanupObjects();
         currentSceneIndex = index;
         scenes.get(currentSceneIndex).startObjects(this);
+    }
+
+    public static Scene getScene(int index) {
+        return scenes.get(index);
+    }
+
+    public static Scene getCurrentScene() {
+        return getScene(currentSceneIndex);
+    }
+
+    public static <T> T getFirstObject(Class<? extends SceneObject> objectClass) {
+        return getCurrentScene().getFirstObject(objectClass);
+    }
+
+    public static <T> List<T> getObjects(Class<? extends SceneObject> objectClass) {
+        return getCurrentScene().getObjects(objectClass);
     }
 
     public void stop() {
         running = false;
     }
 
-    public int getFps() {
+    public static int getFps() {
         return fps;
     }
 
-    public void setFps(int fps) {
-        this.fps = fps;
+    public static void setFps(int fps) {
+        Oxygen.fps = fps;
+    }
+
+    public static int getDeltaTime() {
+        return deltaTime;
+    }
+
+    public static void setDeltaTime(int deltaTime) {
+        Oxygen.deltaTime = deltaTime;
     }
 
     public String getApplicationName() {
@@ -154,6 +195,18 @@ public class Oxygen {
         return debug;
     }
 
+    public static Lib getLib() {
+        return lib;
+    }
+
+    public static int getVulkanModelIdCounter() {
+        return vulkanModelIdCounter;
+    }
+
+    public static void incrementVulkanModelIdCounter() {
+        vulkanModelIdCounter++;
+    }
+
     public String getVersion() {
         return version;
     }
@@ -161,7 +214,7 @@ public class Oxygen {
     public Window getWindow() {
         return window;
     }
-    public Renderer getRenderer() {
+    public IRenderer getRenderer() {
         return renderer;
     }
 
@@ -180,6 +233,8 @@ public class Oxygen {
         private Boolean maximized = false;
         private Boolean vsync = false;
         private Boolean debug = false;
+        private Lib lib = Lib.OPENGL;
+        private String absoluteIconPath = OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("textures/oxygen.png");
 
         public Builder applicationName(String applicationName) {
             this.applicationName = applicationName;
@@ -226,8 +281,18 @@ public class Oxygen {
             return this;
         }
 
+        public Builder lib(Lib lib) {
+            this.lib = lib;
+            return this;
+        }
+
+        public Builder absoluteIconPath(String absoluteIconPath) {
+            this.absoluteIconPath = absoluteIconPath;
+            return this;
+        }
+
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized), vsync, debug);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, absoluteIconPath), vsync, debug, lib);
         }
     }
 }

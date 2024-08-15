@@ -1,7 +1,6 @@
 package dev.xernas.oxygen.render.vulkan.drawing;
 
 import dev.xernas.oxygen.IOxygenLogic;
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.Window;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.vulkan.device.Device;

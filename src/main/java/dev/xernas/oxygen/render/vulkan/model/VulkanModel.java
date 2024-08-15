@@ -1,6 +1,8 @@
 package dev.xernas.oxygen.render.vulkan.model;
 
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
+import dev.xernas.oxygen.render.oxygen.model.interfaces.IModelData;
 import dev.xernas.oxygen.render.vulkan.buffers.VulkanBuffer;
 import dev.xernas.oxygen.render.vulkan.command.CommandBuffer;
 import dev.xernas.oxygen.render.vulkan.command.CommandPool;
@@ -19,24 +21,30 @@ import java.util.List;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Model {
+public class VulkanModel implements IModel {
 
-    private final String modelId;
+    private final Integer modelId;
     private final List<Mesh> meshList;
 
-    public Model(String modelId) {
+    public VulkanModel(Integer modelId) {
         this.modelId = modelId;
         meshList = new ArrayList<>();
     }
 
+    @Override
+    public void init() throws OxygenException {
+
+    }
+
+    @Override
     public void cleanup() throws OxygenException {
         for (Mesh mesh : meshList) {
             mesh.cleanup();
         }
     }
 
-    public static List<Model> transformModels(List<ModelData> modelDataList, CommandPool commandPool, Queue queue) throws OxygenException {
-        List<Model> vulkanModelList = new ArrayList<>();
+    public static List<VulkanModel> transformModels(List<IModelData> modelDataList, CommandPool commandPool, Queue queue) throws OxygenException {
+        List<VulkanModel> vulkanVulkanModelList = new ArrayList<>();
         Device device = commandPool.getDevice();
         CommandBuffer cmd = new CommandBuffer(commandPool, true, true);
         device.init();
@@ -44,12 +52,13 @@ public class Model {
         List<VulkanBuffer> stagingBufferList = new ArrayList<>();
 
         cmd.beginRecording();
-        for (ModelData modelData : modelDataList) {
-            Model vulkanModel = new Model(modelData.getModelId());
-            vulkanModelList.add(vulkanModel);
+        for (IModelData iModelData : modelDataList) {
+            VulkanModelData vulkanModelData = (VulkanModelData) iModelData;
+            VulkanModel vulkanModel = new VulkanModel(vulkanModelData.getModelId());
+            vulkanVulkanModelList.add(vulkanModel);
 
             // Transform meshes loading their data into GPU buffers
-            for (ModelData.MeshData meshData : modelData.getMeshDataList()) {
+            for (VulkanModelData.MeshData meshData : vulkanModelData.getMeshDataList()) {
                 TransferBuffers verticesBuffers = createVerticesBuffers(device, meshData);
                 TransferBuffers indicesBuffers = createIndicesBuffers(device, meshData);
                 stagingBufferList.add(verticesBuffers.srcBuffer());
@@ -79,7 +88,13 @@ public class Model {
             vulkanBuffer.cleanup();
         }
 
-        return vulkanModelList;
+        return vulkanVulkanModelList;
+    }
+
+    public static VulkanModel transformModel(IModelData modelData, CommandPool commandPool, Queue queue) throws OxygenException {
+        List<IModelData> modelDataList = new ArrayList<>();
+        modelDataList.add(modelData);
+        return transformModels(modelDataList, commandPool, queue).get(0);
     }
 
     private static void recordTransferCommand(CommandBuffer cmd, TransferBuffers transferBuffers) {
@@ -91,7 +106,7 @@ public class Model {
         }
     }
 
-    private static TransferBuffers createIndicesBuffers(Device device, ModelData.MeshData meshData) throws OxygenException {
+    private static TransferBuffers createIndicesBuffers(Device device, VulkanModelData.MeshData meshData) throws OxygenException {
         int[] indices = meshData.indices();
         int numIndices = indices.length;
         int bufferSize = numIndices * VulkanConstants.INT_LENGTH;
@@ -111,7 +126,7 @@ public class Model {
         return new TransferBuffers(srcBuffer, dstBuffer);
     }
 
-    private static TransferBuffers createVerticesBuffers(Device device, ModelData.MeshData meshData) throws OxygenException {
+    private static TransferBuffers createVerticesBuffers(Device device, VulkanModelData.MeshData meshData) throws OxygenException {
         float[] positions = meshData.vertices();
         int numPositions = positions.length;
         int bufferSize = numPositions * VulkanConstants.FLOAT_LENGTH;
@@ -131,8 +146,8 @@ public class Model {
         return new TransferBuffers(srcBuffer, dstBuffer);
     }
 
-
-    public String getModelId() {
+    @Override
+    public Integer getModelId() {
         return modelId;
     }
 

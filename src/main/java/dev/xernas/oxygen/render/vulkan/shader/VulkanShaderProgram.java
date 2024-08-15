@@ -16,14 +16,14 @@ import java.nio.file.Files;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class ShaderProgram implements IOxygenLogic {
+public class VulkanShaderProgram implements IOxygenLogic {
 
     private final Device device;
     private final ShaderModuleData[] shaderModuleData;
     private final ShaderModule[] shaderModules;
     private final int numModules;
 
-    public ShaderProgram(Device device, ShaderModuleData[] shaderModuleData) {
+    public VulkanShaderProgram(Device device, ShaderModuleData[] shaderModuleData) {
         this.device = device;
         this.shaderModuleData = shaderModuleData;
         numModules = shaderModuleData != null ? shaderModuleData.length : 0;

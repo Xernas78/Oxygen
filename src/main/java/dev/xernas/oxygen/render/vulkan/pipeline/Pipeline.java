@@ -4,7 +4,7 @@ import dev.xernas.oxygen.IOxygenLogic;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.vulkan.buffers.VertexInputStateInfo;
 import dev.xernas.oxygen.render.vulkan.device.Device;
-import dev.xernas.oxygen.render.vulkan.shader.ShaderProgram;
+import dev.xernas.oxygen.render.vulkan.shader.VulkanShaderProgram;
 import dev.xernas.oxygen.render.vulkan.utils.VulkanUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -35,7 +35,7 @@ public class Pipeline implements IOxygenLogic {
 
             ByteBuffer main = stack.UTF8("main");
 
-            ShaderProgram.ShaderModule[] shaderModules = pipeLineCreationInfo.shaderProgram.getShaderModules();
+            VulkanShaderProgram.ShaderModule[] shaderModules = pipeLineCreationInfo.shaderProgram.getShaderModules();
             int numModules = shaderModules.length;
             VkPipelineShaderStageCreateInfo.Buffer shaderStages = VkPipelineShaderStageCreateInfo.calloc(numModules, stack);
             for (int i = 0; i < numModules; i++) {
@@ -123,7 +123,7 @@ public class Pipeline implements IOxygenLogic {
         return vkPipelineLayout;
     }
 
-    public record PipeLineCreationInfo(long vkRenderPass, ShaderProgram shaderProgram, int numColorAttachments,
+    public record PipeLineCreationInfo(long vkRenderPass, VulkanShaderProgram shaderProgram, int numColorAttachments,
                                        VertexInputStateInfo viInputStateInfo) {
         public void cleanup() {
             viInputStateInfo.cleanup();

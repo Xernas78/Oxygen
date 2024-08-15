@@ -1,4 +1,4 @@
-package dev.xernas.oxygen.render;
+package dev.xernas.oxygen.render.vulkan;
 
 import dev.xernas.oxygen.IOxygenLogic;
 import dev.xernas.oxygen.exception.OxygenException;
@@ -11,10 +11,10 @@ import dev.xernas.oxygen.render.vulkan.drawing.ImageView;
 import dev.xernas.oxygen.render.vulkan.drawing.SwapChain;
 import dev.xernas.oxygen.render.vulkan.drawing.SwapChainRenderPass;
 import dev.xernas.oxygen.render.vulkan.command.Queue;
-import dev.xernas.oxygen.render.vulkan.model.Model;
+import dev.xernas.oxygen.render.vulkan.model.VulkanModel;
 import dev.xernas.oxygen.render.vulkan.pipeline.Pipeline;
 import dev.xernas.oxygen.render.vulkan.pipeline.PipelineCache;
-import dev.xernas.oxygen.render.vulkan.shader.ShaderProgram;
+import dev.xernas.oxygen.render.vulkan.shader.VulkanShaderProgram;
 import dev.xernas.oxygen.render.vulkan.sync.Fence;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -27,8 +27,8 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class ForwardRenderActivity implements IOxygenLogic {
 
-    private static final String FRAGMENT_SHADER_FILE_GLSL = "default.frag";
-    private static final String VERTEX_SHADER_FILE_GLSL = "default.vert";
+    private static final String FRAGMENT_SHADER_FILE_GLSL = "shaders/default/default.frag";
+    private static final String VERTEX_SHADER_FILE_GLSL = "shaders/default/default.vert";
 
     private final SwapChain swapChain;
     private final CommandPool commandPool;
@@ -38,7 +38,7 @@ public class ForwardRenderActivity implements IOxygenLogic {
     private FrameBuffer[] frameBuffers;
     private CommandBuffer[] commandBuffers;
     private Fence[] fences;
-    private ShaderProgram fwdShaderProgram;
+    private VulkanShaderProgram fwdShaderProgram;
     private Pipeline pipeline;
 
     public ForwardRenderActivity(SwapChain swapChain, CommandPool commandPool, PipelineCache pipelineCache) {
@@ -69,10 +69,10 @@ public class ForwardRenderActivity implements IOxygenLogic {
 
             // Drawing
 
-            fwdShaderProgram = new ShaderProgram(device, new ShaderProgram.ShaderModuleData[]
+            fwdShaderProgram = new VulkanShaderProgram(device, new VulkanShaderProgram.ShaderModuleData[]
                     {
-                            new ShaderProgram.ShaderModuleData(VK_SHADER_STAGE_VERTEX_BIT, VERTEX_SHADER_FILE_GLSL),
-                            new ShaderProgram.ShaderModuleData(VK_SHADER_STAGE_FRAGMENT_BIT, FRAGMENT_SHADER_FILE_GLSL),
+                            new VulkanShaderProgram.ShaderModuleData(VK_SHADER_STAGE_VERTEX_BIT, VERTEX_SHADER_FILE_GLSL),
+                            new VulkanShaderProgram.ShaderModuleData(VK_SHADER_STAGE_FRAGMENT_BIT, FRAGMENT_SHADER_FILE_GLSL),
                     });
             fwdShaderProgram.init();
             VertexBufferStructure vertexBufferStructure = new VertexBufferStructure();
@@ -118,7 +118,7 @@ public class ForwardRenderActivity implements IOxygenLogic {
         }
     }
 
-    public void recordCommandBuffer(List<Model> vulkanModelList) throws OxygenException {
+    public void recordCommandBuffer(List<VulkanModel> vulkanVulkanModelList) throws OxygenException {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkExtent2D swapChainExtent = swapChain.getSwapChainExtent();
             int width = swapChainExtent.width();
@@ -130,7 +130,7 @@ public class ForwardRenderActivity implements IOxygenLogic {
 
             commandBuffer.reset();
             VkClearValue.Buffer clearValues = VkClearValue.calloc(1, stack);
-            clearValues.apply(0, v -> v.color().float32(0, 1f).float32(1, 1f).float32(2, 1f).float32(3, 1f));
+            clearValues.apply(0, v -> v.color().float32(0, 1f).float32(1, 0f).float32(2, 0f).float32(3, 1f));
 
             VkRenderPassBeginInfo renderPassBeginInfo = VkRenderPassBeginInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
@@ -166,8 +166,8 @@ public class ForwardRenderActivity implements IOxygenLogic {
             LongBuffer offsets = stack.mallocLong(1);
             offsets.put(0, 0L);
             LongBuffer vertexBuffer = stack.mallocLong(1);
-            for (Model vulkanModel : vulkanModelList) {
-                for (Model.Mesh mesh : vulkanModel.getVulkanMeshList()) {
+            for (VulkanModel vulkanModel : vulkanVulkanModelList) {
+                for (VulkanModel.Mesh mesh : vulkanModel.getVulkanMeshList()) {
                     vertexBuffer.put(0, mesh.verticesBuffer().getBuffer());
                     vkCmdBindVertexBuffers(cmdHandle, 0, vertexBuffer, offsets);
                     vkCmdBindIndexBuffer(cmdHandle, mesh.indicesBuffer().getBuffer(), 0, VK_INDEX_TYPE_UINT32);

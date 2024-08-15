@@ -1,16 +1,24 @@
 package dev.xernas.oxygen.engine;
 
 import dev.xernas.oxygen.Oxygen;
+import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.opengl.OGLRenderer;
+
+import java.util.Scanner;
 
 public interface Behavior {
 
-    void start(Oxygen oxygen) throws OxygenException;
+    void start(Oxygen oxygen, SceneObject parent) throws OxygenException;
 
-    void update(Oxygen oxygen);
+    void update(Oxygen oxygen, SceneObject parent);
 
-    void input(Oxygen oxygen);
+    default void input(Oxygen oxygen, Input input) {
+        // Do nothing
+    };
 
-    void cleanup();
+    default void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+        // Do nothing
+    }
 
 }
