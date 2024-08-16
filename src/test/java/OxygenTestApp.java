@@ -5,8 +5,11 @@ import dev.xernas.oxygen.engine.camera.Camera;
 import dev.xernas.oxygen.engine.camera.CameraController;
 import dev.xernas.oxygen.render.utils.Lib;
 import objects.GameManagerObj;
+import objects.Light;
 import objects.NormalObject;
 import org.joml.Vector3f;
+
+import java.awt.*;
 
 public class OxygenTestApp {
 
@@ -22,10 +25,10 @@ public class OxygenTestApp {
                 .build();
 
         oxygen.addScene(new Scene()
-                .addObject(new Camera())
+                .addObject(new Camera(new CameraController(2f)))
                 .addObject(new GameManagerObj())
-                .addObject(new NormalObject(new Transform(new Vector3f(-10f, -3f, -15f), new Vector3f(0, 180, 0)), "stall"))
-                .addObject(new NormalObject(new Transform(new Vector3f(10f, -3f, -15f), new Vector3f(0, 180, 0)).scale(0.4f), "sword"))
+                .addObject(new Light(new Transform(new Vector3f(0f, 10f, -10f)), Color.WHITE, Color.WHITE, 1f, true))
+                .addObject(new NormalObject(new Transform(new Vector3f(0f, -3f, -15f), new Vector3f(0, 180, 0)), "dragon", "default"))
         );
         oxygen.init();
     }

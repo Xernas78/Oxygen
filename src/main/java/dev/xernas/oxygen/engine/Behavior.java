@@ -21,4 +21,8 @@ public interface Behavior {
         // Do nothing
     }
 
+    default void cleanup(Oxygen oxygen, SceneObject parent) throws OxygenException {
+        // Do nothing
+    }
+
 }

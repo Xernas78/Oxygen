@@ -36,6 +36,12 @@ public class Scene {
         objects.forEach(sceneObject -> sceneObject.inputBehaviors(oxygen));
     }
 
+    public void cleanupObjects(Oxygen oxygen) throws OxygenException {
+        for (SceneObject object : objects) {
+            object.cleanupBehaviors(oxygen);
+        }
+    }
+
     public Camera getCamera() {
         return getFirstObject(Camera.class);
     }

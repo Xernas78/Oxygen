@@ -1,6 +1,7 @@
 package dev.xernas.oxygen.engine.resource.obj;
 
 import dev.xernas.oxygen.Oxygen;
+import dev.xernas.oxygen.engine.material.Material;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
 import dev.xernas.oxygen.render.oxygen.model.Model;
 
@@ -46,9 +47,19 @@ public class ObjFormat {
         return faceCount;
     }
 
-    public Model toModel(String textureFileName) {
-        String textureFilePath = Oxygen.OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("models/" + objName + "/" + textureFileName);
-        return new Model(vertices, indices, texCoords, normals, objName == null || objName.isEmpty() ? null : (textureFilePath == null ? Oxygen.OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("textures/error.png") : textureFilePath));
+    public Model toModel(Material material) {
+        String textureFilePath = Oxygen.OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("models/" + objName + "/" + material.getTexturePath());
+        Material newMaterial = new Material(
+                objName == null || objName.isEmpty() ? null : (textureFilePath == null ? Oxygen.OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("textures/error.png") : textureFilePath),
+                material.getBaseColor(),
+                material.illuminable(),
+                material.getShininess(),
+                material.getShineDamper());
+        return new Model(vertices, indices, texCoords, normals, newMaterial);
+    }
+
+    public Model toModel() {
+        return new Model(vertices, indices, texCoords, normals, null);
     }
 
 }

@@ -9,6 +9,7 @@ import dev.xernas.oxygen.render.oxygen.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class SceneObject {
 
@@ -16,6 +17,7 @@ public abstract class SceneObject {
 
     private Transform transform;
     private Model model;
+    private String shaderName = "default";
 
     public void setTransform(Transform transform) {
         if (transform != null) {
@@ -33,6 +35,10 @@ public abstract class SceneObject {
             behaviors.add(new ModelRenderer(model));
         }
         this.model = model;
+    }
+
+    public void setShader(String shaderName) {
+        this.shaderName = shaderName;
     }
 
     public List<Behavior> getDefaultBehaviors() {
@@ -65,6 +71,16 @@ public abstract class SceneObject {
         for (Behavior behavior : behaviors) {
             behavior.render(renderer, this);
         }
+    }
+
+    public final void cleanupBehaviors(Oxygen oxygen) throws OxygenException {
+        for (Behavior behavior : behaviors) {
+            behavior.cleanup(oxygen, this);
+        }
+    }
+
+    public String getShaderName() {
+        return shaderName;
     }
 
     public final <T> T getBehavior(Class<? extends Behavior> behaviorClass) {

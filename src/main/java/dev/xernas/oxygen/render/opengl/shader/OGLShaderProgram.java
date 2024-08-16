@@ -16,18 +16,18 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class OGLShaderProgram implements IOGLObject {
 
-    public static final OGLShaderProgram DEFAULT = new OGLShaderProgram("default");
-
     private int programId;
 
     private final String shaderName;
     private final String vertexShader;
     private final String fragmentShader;
+    private final boolean useDefaultVertex;
 
-    public OGLShaderProgram(String shaderName) {
+    public OGLShaderProgram(String shaderName, boolean useDefaultVertex) {
         this.shaderName = shaderName;
-        this.vertexShader = shaderName + ".vert";
+        this.vertexShader = useDefaultVertex ? "default.vert" : shaderName + ".vert";
         this.fragmentShader = shaderName + ".frag";
+        this.useDefaultVertex = useDefaultVertex;
     }
 
     @Override
@@ -44,8 +44,8 @@ public class OGLShaderProgram implements IOGLObject {
     public void init() throws OxygenException {
         int vertexShaderId = OGLUtils.requireNotEquals(glCreateShader(GL_VERTEX_SHADER), 0, "Error creating vertex shader");
         int fragmentShaderId = OGLUtils.requireNotEquals(glCreateShader(GL_FRAGMENT_SHADER), 0, "Error creating fragment shader");
-        String vertexShaderCode = readShader(vertexShader);
-        String fragmentShaderCode = readShader(fragmentShader);
+        String vertexShaderCode = readShader(useDefaultVertex ? "default" : shaderName, vertexShader);
+        String fragmentShaderCode = readShader(shaderName, fragmentShader);
 
         programId = OGLUtils.requireNotEquals(glCreateProgram(), 0, "Error creating shader program");
 
@@ -96,25 +96,25 @@ public class OGLShaderProgram implements IOGLObject {
     }
 
     public <T> void setUniform(String name, T value) {
-        try {
-            int location = OGLUtils.requireNotEquals(glGetUniformLocation(programId, name), -1, "Uniform " + name + " not found");
-            Uniform<T> uniform = new Uniform<>(name, location, value);
-            uniform.setValue(value);
-        }
-        catch (OpenGLException e) {
-            Oxygen.LOGGER.warn(e.getMessage());
-        }
+        int location = glGetUniformLocation(programId, name);
+        if (location == -1) return;
+        Uniform<T> uniform = new Uniform<>(name, location, value);
+        uniform.setValue(value);
     }
 
-    private String readShader(String name) throws OpenGLException {
+    private String readShader(String shaderName, String name) throws OpenGLException {
         String result;
         try (FileInputStream inputStream = new FileInputStream("shaders/" + shaderName + "/" + name)) {
             Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A");
             result = scanner.hasNext() ? scanner.next() : "";
         }
         catch (IOException e) {
-            throw new OpenGLException("Error reading shader file: " + name);
+            throw new OpenGLException("Error reading shader file: shaders/" + shaderName + "/" + name);
         }
         return result;
+    }
+
+    public String getShaderName() {
+        return shaderName;
     }
 }

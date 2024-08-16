@@ -1,6 +1,7 @@
 package dev.xernas.oxygen.engine.resource;
 
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.opengl.shader.OGLShaderProgram;
 
 import java.io.*;
 import java.net.URL;
@@ -77,6 +78,22 @@ public class ResourceManager {
         } catch (IOException e) {
             throw new RuntimeException("Error reading lines from resource: " + resourcePath);
         }
+    }
+
+    public List<OGLShaderProgram> getShadersFromShadersDir() {
+        List<OGLShaderProgram> shaderPrograms = new ArrayList<>();
+        File shadersDir = new File("shaders/");
+        File[] shaderDirs = shadersDir.listFiles();
+        if (shaderDirs == null) return null;
+        for (File shaderDir : shaderDirs) {
+            if (shaderDir.isDirectory()) {
+                File[] shaderFiles = shaderDir.listFiles();
+                if (shaderFiles == null) return null;
+                String shaderName = shaderDir.getName();
+                shaderPrograms.add(new OGLShaderProgram(shaderName, !(shaderFiles.length >= 2)));
+            }
+        }
+        return shaderPrograms;
     }
 
     public Properties getPropertiesFromFile(String path) throws OxygenException {

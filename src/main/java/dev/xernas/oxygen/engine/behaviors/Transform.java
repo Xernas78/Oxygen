@@ -51,9 +51,9 @@ public class Transform implements Behavior {
 
     @Override
     public void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
-        renderer.getShaderProgram().setUniform("transformMatrix", TransformUtils.createTransformationMatrix(this));
-        renderer.getShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(renderer.getWindow()));
-        renderer.getShaderProgram().setUniform("viewMatrix", TransformUtils.createViewMatrix(Oxygen.getCurrentScene().getCamera()));
+        renderer.getCurrentShaderProgram().setUniform("transformMatrix", TransformUtils.createTransformationMatrix(this));
+        renderer.getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(renderer.getWindow()));
+        renderer.getCurrentShaderProgram().setUniform("viewMatrix", TransformUtils.createViewMatrix(Oxygen.getCurrentScene().getCamera()));
     }
 
     public void move(Vector3f position) {

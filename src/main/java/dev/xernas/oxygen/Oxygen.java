@@ -70,6 +70,7 @@ public class Oxygen {
             if (!glfwInit()) throw new GLFWException("Unable to initialize GLFW");
 
             if (lib == Lib.VULKAN) if (!glfwVulkanSupported()) throw new GLFWException("Cannot find a compatible Vulkan installable client driver (ICD)");
+
             window.init();
             renderer.init();
 
@@ -133,6 +134,7 @@ public class Oxygen {
     }
 
     private void cleanup() throws OxygenException {
+        getCurrentScene().cleanupObjects(this);
         renderer.cleanup();
         window.cleanup();
         glfwTerminate();
@@ -147,8 +149,9 @@ public class Oxygen {
             LOGGER.warn("Scene index out of bounds");
             return;
         }
+        getCurrentScene().cleanupObjects(this);
         currentSceneIndex = index;
-        scenes.get(currentSceneIndex).startObjects(this);
+        getCurrentScene().startObjects(this);
     }
 
     public static Scene getScene(int index) {

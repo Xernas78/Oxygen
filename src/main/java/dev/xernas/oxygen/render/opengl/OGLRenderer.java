@@ -3,6 +3,7 @@ package dev.xernas.oxygen.render.opengl;
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.Window;
 import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.behaviors.LightSource;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
@@ -11,17 +12,16 @@ import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class OGLRenderer implements IRenderer {
 
     private final List<SceneObject> sceneObjects = new ArrayList<>();
-    private final List<IModel> models = new ArrayList<>();
+    private final Map<String, OGLShaderProgram> shaderPrograms = new HashMap<>();
 
-    private OGLShaderProgram shaderProgram;
+    private String currentShaderProgramKey;
 
     private final Window window;
 
@@ -33,11 +33,13 @@ public class OGLRenderer implements IRenderer {
     public void render() throws OxygenException {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(window.getClearColor().getRed() / 255f, window.getClearColor().getGreen() / 255f, window.getClearColor().getBlue() / 255f, window.getClearColor().getAlpha() / 255f);
-        shaderProgram.bind();
+        LightSource.lightIndex = 0;
         for (SceneObject sceneObject : sceneObjects) {
+            currentShaderProgramKey = sceneObject.getShaderName();
+            getCurrentShaderProgram().bind();
             sceneObject.renderBehaviors(this);
+            getCurrentShaderProgram().unbind();
         }
-        shaderProgram.unbind();
     }
 
     @Override
@@ -48,6 +50,12 @@ public class OGLRenderer implements IRenderer {
     @Override
     public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
         this.sceneObjects.add(sceneObject);
+    }
+
+    public void loadShaderPrograms(List<OGLShaderProgram> shaderPrograms) {
+        for (OGLShaderProgram shaderProgram : shaderPrograms) {
+            this.shaderPrograms.put(shaderProgram.getShaderName(), shaderProgram);
+        }
     }
 
     @Override
@@ -62,25 +70,27 @@ public class OGLRenderer implements IRenderer {
             Oxygen.OXYGEN_RESOURCE_MANAGER.createFileFromResource("shaders/default/default.vert", "shaders/default/default.vert");
             Oxygen.OXYGEN_RESOURCE_MANAGER.createFileFromResource("shaders/default/default.frag", "shaders/default/default.frag");
         }
-        shaderProgram = OGLShaderProgram.DEFAULT;
-        shaderProgram.init();
+        loadShaderPrograms(Oxygen.OXYGEN_RESOURCE_MANAGER.getShadersFromShadersDir());
+        for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.init();
         glEnable(GL_DEPTH_TEST);
     }
 
     @Override
     public void cleanup() throws OxygenException {
-        shaderProgram.cleanup();
+        for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.cleanup();
     }
 
-    public OGLShaderProgram getShaderProgram() {
+    public OGLShaderProgram getShaderProgram(String name) {
+        return shaderPrograms.get(name);
+    }
+
+    public OGLShaderProgram getCurrentShaderProgram() throws OpenGLException {
+        OGLShaderProgram shaderProgram = shaderPrograms.get(currentShaderProgramKey);
+        if (shaderProgram == null) throw new OpenGLException("Shader program not found: " + currentShaderProgramKey);
         return shaderProgram;
     }
 
     public Window getWindow() {
         return window;
-    }
-
-    public void addModel(IModel model) {
-        models.add(model);
     }
 }
