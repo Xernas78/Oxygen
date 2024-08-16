@@ -26,7 +26,7 @@ public class GameManager implements Behavior {
     @Override
     public void update(Oxygen oxygen, SceneObject parent) {
         window.setTitle(oxygen.getWindow().getDefaultTitle() + " - FPS: " + Oxygen.getFps());
-        window.setBackgroundColor(Color.decode("#000060"));
+        window.setBackgroundColor(Color.BLACK);
     }
 
     @Override

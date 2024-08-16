@@ -15,6 +15,7 @@ out vec2 texCoordFrag;
 
 out vec3 surfaceNormal;
 out vec3 toLightDir[10];
+out vec3 toCameraDir;
 
 void main()
 {
@@ -28,4 +29,5 @@ void main()
     {
         toLightDir[i] = lightPos[i] - worldPos.xyz;
     }
+    toCameraDir = (inverse(viewMatrix) * vec4(0, 0, 0, 1)).xyz - worldPos.xyz;
 }

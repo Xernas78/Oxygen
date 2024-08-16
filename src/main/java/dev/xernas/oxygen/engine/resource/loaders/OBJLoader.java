@@ -1,7 +1,9 @@
-package dev.xernas.oxygen.engine.resource.obj;
+package dev.xernas.oxygen.engine.resource.loaders;
 
 import dev.xernas.oxygen.Oxygen;
+import dev.xernas.oxygen.engine.resource.ILoader;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
+import dev.xernas.oxygen.engine.resource.formats.ObjFormat;
 import dev.xernas.oxygen.exception.OxygenException;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -10,12 +12,20 @@ import org.joml.Vector3i;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OBJLoader {
+public class OBJLoader implements ILoader {
 
-    public static ObjFormat getObjFromResource(String resource, boolean textured) {
-        List<String> lines = Oxygen.OXYGEN_RESOURCE_MANAGER.getLinesFromResource("models/" + resource + "/" + resource + ".obj");
+    private final ResourceManager resourceManager;
+
+    public OBJLoader(ResourceManager resourceManager) {
+        this.resourceManager = resourceManager;
+    }
+
+    @Override
+    public ObjFormat loadFromResources(String resource, boolean textured) {
+        String resourcePath = resourceManager.getModelsDir() + resource;
+        List<String> lines = resourceManager.getLinesFromResource(resourcePath);
         if (lines == null) {
-            Oxygen.LOGGER.fatal(new OxygenException("Resource not found: models/" + resource + "/" + resource + ".obj"));
+            Oxygen.LOGGER.fatal(new OxygenException("Resource not found: " + resourcePath));
             return null;
         }
         List<Vector3f> vertices = new ArrayList<>();
@@ -74,10 +84,10 @@ public class OBJLoader {
         }
 
         int[] indicesArray = indices.stream().mapToInt(Integer::intValue).toArray();
-        return new ObjFormat(verticesArray, indicesArray, normalsArray, texCoordsArray, faces.size(), textured ? resource : null);
+        return new ObjFormat(resourceManager, verticesArray, indicesArray, normalsArray, texCoordsArray, faces.size(), textured);
     }
 
-    private static void processVertex(Vector3i face, List<Integer> indices, List<Vector2f> texCoords, List<Vector3f> normals, float[] texCoordsArray, float[] normalsArray) {
+    private void processVertex(Vector3i face, List<Integer> indices, List<Vector2f> texCoords, List<Vector3f> normals, float[] texCoordsArray, float[] normalsArray) {
         indices.add(face.x);
 
         if (face.y >= 0) {
@@ -95,7 +105,7 @@ public class OBJLoader {
 
     }
 
-    private static void processFace(String token, List<Vector3i> faces) {
+    private void processFace(String token, List<Vector3i> faces) {
         String[] tokens = token.split("/");
         int length = tokens.length;
         int position = length > 0 ? Integer.parseInt(tokens[0]) - 1 : -1;

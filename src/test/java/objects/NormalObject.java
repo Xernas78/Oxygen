@@ -2,23 +2,29 @@ package objects;
 
 
 import behaviors.ShowObject;
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
 import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.engine.material.Material;
-import dev.xernas.oxygen.engine.resource.obj.OBJLoader;
+import dev.xernas.oxygen.engine.resource.ModelLoader;
 import dev.xernas.oxygen.engine.utils.Direction;
-import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.List;
 
 public class NormalObject extends SceneObject {
 
-    public NormalObject(Transform transform, String resource, String shader) {
+    public NormalObject(Transform transform, String resourceObj, String resourceImg) {
         setTransform(transform);
-        setModel(OBJLoader.getObjFromResource(resource, false).toModel(new Material(resource + ".png", Color.GREEN, 3f, 10)));
-        setShader(shader);
+        setModel(ModelLoader.loadFromResources(Oxygen.getRemoteResourceManager(), resourceObj, true)
+                .toModel(new Material(
+                        Oxygen.getRemoteResourceManager(),
+                        resourceImg,
+                        Color.YELLOW,
+                        2f,
+                        32f
+                )));
     }
 
     @Override

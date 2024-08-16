@@ -1,9 +1,6 @@
 package dev.xernas.oxygen.render.oxygen.model;
 
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.material.Material;
-
-import java.awt.*;
 
 public class Model {
 

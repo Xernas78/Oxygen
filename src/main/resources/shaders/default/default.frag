@@ -5,12 +5,18 @@ in vec2 texCoordFrag;
 
 in vec3 surfaceNormal;
 in vec3 toLightDir[10];
+in vec3 toCameraDir;
 
 uniform bool isTextured;
 uniform sampler2D textureSampler;
 
-uniform vec3 lightColor[10];
+uniform vec3 baseColor;
 
+uniform bool illuminable;
+uniform float shininess;
+uniform float shineDamper;
+uniform vec3 lightColor[10];
+uniform vec3 specularColor[10];
 uniform float lightIntensity[10];
 
 out vec4 uFragColor;
@@ -18,20 +24,35 @@ out vec4 uFragColor;
 void main()
 {
     vec3 normal = normalize(surfaceNormal);
+    vec3 toCamera = normalize(toCameraDir);
 
+    vec3 totalLighting = vec3(0.0);
     vec3 totalDiffuse = vec3(0.0);
+    vec3 totalSpecular = vec3(0.0);
 
     for (int i = 0; i < 10; i++) {
-        vec3 toLightDirNormalized = normalize(toLightDir[i]);
-        float brightness = max(dot(normal, toLightDirNormalized), 0.0);
-        totalDiffuse += brightness * lightColor[i] * lightIntensity[i];
+        vec3 toLight = normalize(toLightDir[i]);
+        float brightness = max(dot(normal, toLight), 0.0);
+
+        vec3 fromLight = -toLight;
+        vec3 reflectedDir = reflect(fromLight, normal);
+        float specularFactor = pow(max(dot(reflectedDir, toCamera), 0.0), shineDamper);
+
+        vec3 specular = specularFactor * specularColor[i] * shininess;
+        vec3 diffuse = brightness * lightColor[i] * lightIntensity[i];
+
+        totalDiffuse += diffuse;
+        totalSpecular += specular;
     }
 
-    totalDiffuse = max(totalDiffuse, 0.2);
+    totalLighting = max(totalDiffuse + totalSpecular, 0.1);
 
     vec4 textured = texture(textureSampler, texCoordFrag);
     if(!isTextured) {
-        textured = vec4(1, 1, 1, 1);
+        textured = vec4(baseColor, 1);
     }
-    uFragColor = vec4(totalDiffuse, 1.0) * textured;
+    if(!illuminable) {
+        totalLighting = baseColor;
+    }
+    uFragColor = vec4(totalLighting, 1.0) * textured;
 }

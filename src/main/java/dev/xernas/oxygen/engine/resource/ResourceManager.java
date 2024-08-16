@@ -10,9 +10,19 @@ import java.util.*;
 public class ResourceManager {
 
     private final Class<?> projectClass;
+    private final String shadersDir;
+    private final String modelsDir;
+    private final String texturesDir;
+
+    public ResourceManager(Class<?> projectClass, String shadersDir, String modelsDir, String texturesDir) {
+        this.projectClass = projectClass;
+        this.shadersDir = shadersDir;
+        this.modelsDir = modelsDir;
+        this.texturesDir = texturesDir;
+    }
 
     public ResourceManager(Class<?> projectClass) {
-        this.projectClass = projectClass;
+        this(projectClass, "", "", "");
     }
 
     public InputStream getResourceAsStream(String resourcePath) {
@@ -23,22 +33,10 @@ public class ResourceManager {
         }
     }
 
-    public File getFile(String path) throws OxygenException {
-        File file = new File(path);
-        if (!file.exists()) {
-            try {
-                if (!file.createNewFile()) throw new OxygenException("Error creating file: " + file.getAbsolutePath());
-            }
-            catch (IOException e) {
-                throw new OxygenException("Error creating file: " + file.getAbsolutePath());
-            }
-        }
-        return file;
-    }
-
-    public void createFileFromResource(String resourcePath, String filePath) throws OxygenException {
-        byte[] data = getBytesFromResource(resourcePath);
-        writeBytesToFile(filePath, data);
+    public File getFileFromResource(String path) throws OxygenException {
+        URL resource = projectClass.getClassLoader().getResource(path);
+        if (resource == null) throw new OxygenException("Resource not found: " + path);
+        return new File(resource.getFile());
     }
 
     public byte[] getBytesFromResource(String resourcePath) throws OxygenException {
@@ -59,16 +57,6 @@ public class ResourceManager {
         return new File(Objects.requireNonNull(resource).getFile()).getAbsolutePath();
     }
 
-    public void writeBytesToFile(String filePath, byte[] data) throws OxygenException {
-        File file = getFile(filePath);
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(data);
-        }
-        catch (IOException e) {
-            throw new OxygenException("Error writing data to file: " + file.getAbsolutePath());
-        }
-    }
-
     public List<String> getLinesFromResource(String resourcePath) {
         try (InputStream is = projectClass.getClassLoader().getResourceAsStream(resourcePath)) {
             if (is == null) return null;
@@ -80,32 +68,39 @@ public class ResourceManager {
         }
     }
 
-    public List<OGLShaderProgram> getShadersFromShadersDir() {
+    public List<OGLShaderProgram> getShadersFromShadersDir() throws OxygenException {
         List<OGLShaderProgram> shaderPrograms = new ArrayList<>();
-        File shadersDir = new File("shaders/");
+        File shadersDir = getFileFromResource(this.shadersDir);
         File[] shaderDirs = shadersDir.listFiles();
-        if (shaderDirs == null) return null;
+        if (shaderDirs == null) return new ArrayList<>();
         for (File shaderDir : shaderDirs) {
             if (shaderDir.isDirectory()) {
                 File[] shaderFiles = shaderDir.listFiles();
-                if (shaderFiles == null) return null;
+                if (shaderFiles == null) continue;
                 String shaderName = shaderDir.getName();
-                shaderPrograms.add(new OGLShaderProgram(shaderName, !(shaderFiles.length >= 2)));
+                String firstShader = shaderFiles[0].getName();
+                if (!firstShader.endsWith(".vert") && !firstShader.endsWith(".frag")) {
+                    continue;
+                }
+                shaderPrograms.add(new OGLShaderProgram(this, shaderName, !(shaderFiles.length >= 2)));
             }
         }
         return shaderPrograms;
     }
 
-    public Properties getPropertiesFromFile(String path) throws OxygenException {
-        File propertiesFile = getFile(path);
-        try (FileInputStream fis = new FileInputStream(propertiesFile)) {
-            Properties properties = new Properties();
-            properties.load(fis);
-            return properties;
-        }
-        catch (IOException e) {
-            throw new OxygenException("Error loading properties from file: " + propertiesFile.getAbsolutePath());
-        }
+    public Class<?> getProjectClass() {
+        return projectClass;
     }
 
+    public String getShadersDir() {
+        return shadersDir;
+    }
+
+    public String getModelsDir() {
+        return modelsDir;
+    }
+
+    public String getTexturesDir() {
+        return texturesDir;
+    }
 }

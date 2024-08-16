@@ -60,17 +60,8 @@ public class OGLRenderer implements IRenderer {
 
     @Override
     public void init() throws OxygenException {
-        File shaderDir = new File("shaders/");
-        if (!shaderDir.exists()) {
-            if (!shaderDir.mkdir()) throw new OpenGLException("Error creating shaders directory");
-        }
-        File defaultShaderDir = new File("shaders/default/");
-        if (!defaultShaderDir.exists()) {
-            if (!defaultShaderDir.mkdir()) throw new OxygenException("Error creating default shader directory");
-            Oxygen.OXYGEN_RESOURCE_MANAGER.createFileFromResource("shaders/default/default.vert", "shaders/default/default.vert");
-            Oxygen.OXYGEN_RESOURCE_MANAGER.createFileFromResource("shaders/default/default.frag", "shaders/default/default.frag");
-        }
         loadShaderPrograms(Oxygen.OXYGEN_RESOURCE_MANAGER.getShadersFromShadersDir());
+        loadShaderPrograms(Oxygen.getRemoteResourceManager().getShadersFromShadersDir());
         for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.init();
         glEnable(GL_DEPTH_TEST);
     }
@@ -85,7 +76,7 @@ public class OGLRenderer implements IRenderer {
     }
 
     public OGLShaderProgram getCurrentShaderProgram() throws OpenGLException {
-        OGLShaderProgram shaderProgram = shaderPrograms.get(currentShaderProgramKey);
+        OGLShaderProgram shaderProgram = getShaderProgram(currentShaderProgramKey);
         if (shaderProgram == null) throw new OpenGLException("Shader program not found: " + currentShaderProgramKey);
         return shaderProgram;
     }

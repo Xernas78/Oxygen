@@ -28,7 +28,7 @@ public class Oxygen {
     private static final float FRAMETIME = 1.0f / TARGET_FRAMERATE;
 
     public static final OLogger LOGGER = new OLogger();
-    public static final ResourceManager OXYGEN_RESOURCE_MANAGER = new ResourceManager(Oxygen.class);
+    public static final ResourceManager OXYGEN_RESOURCE_MANAGER = new ResourceManager(Oxygen.class, "shaders/", "models/", "textures/");
 
     private final String applicationName;
     private final String version;
@@ -45,10 +45,11 @@ public class Oxygen {
     private static int deltaTime;
     private static Lib lib;
     private static int currentSceneIndex = 0;
+    private static ResourceManager remoteResourceManager;
 
     private static int vulkanModelIdCounter = 0;
 
-    public Oxygen(String applicationName, String version, Window window, boolean vsync, boolean debug, Lib lib) {
+    public Oxygen(String applicationName, String version, Window window, boolean vsync, boolean debug, Lib lib, ResourceManager remoteResourceManager) {
         this.applicationName = applicationName;
         this.version = version;
         this.vsync = vsync;
@@ -61,6 +62,7 @@ public class Oxygen {
             LOGGER.warn("Unsupported library, using empty renderer");
             this.renderer = new EmptyRenderer();
         }
+        Oxygen.remoteResourceManager = remoteResourceManager;
     }
 
 
@@ -202,6 +204,10 @@ public class Oxygen {
         return lib;
     }
 
+    public static ResourceManager getRemoteResourceManager() {
+        return remoteResourceManager;
+    }
+
     public static int getVulkanModelIdCounter() {
         return vulkanModelIdCounter;
     }
@@ -229,7 +235,7 @@ public class Oxygen {
 
         private String applicationName = "Oxygen";
         private String version = "1.0.0";
-        private String title = "Oxygen Graphics";
+        private String title;
         private Integer width = 1280;
         private Integer height = 720;
         private Boolean resizable = false;
@@ -237,7 +243,13 @@ public class Oxygen {
         private Boolean vsync = false;
         private Boolean debug = false;
         private Lib lib = Lib.OPENGL;
+        private ResourceManager remoteResourceManager;
         private String absoluteIconPath = OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("textures/oxygen.png");
+
+        public Builder(String title, ResourceManager remoteResourceManager) {
+            this.title = title;
+            this.remoteResourceManager = remoteResourceManager;
+        }
 
         public Builder applicationName(String applicationName) {
             this.applicationName = applicationName;
@@ -289,13 +301,18 @@ public class Oxygen {
             return this;
         }
 
+        public Builder resourceManager(ResourceManager remoteResourceManager) {
+            this.remoteResourceManager = remoteResourceManager;
+            return this;
+        }
+
         public Builder absoluteIconPath(String absoluteIconPath) {
             this.absoluteIconPath = absoluteIconPath;
             return this;
         }
 
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, absoluteIconPath), vsync, debug, lib);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, absoluteIconPath), vsync, debug, lib, remoteResourceManager);
         }
     }
 }
