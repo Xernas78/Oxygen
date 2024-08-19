@@ -14,10 +14,9 @@ public class Uniform<T> {
     private final int location;
     private T value;
 
-    public Uniform(String name, int location, T value) {
+    public Uniform(String name, int location) {
         this.name = name;
         this.location = location;
-        this.value = value;
     }
 
     public void setValue(T value) {
@@ -27,6 +26,8 @@ public class Uniform<T> {
                 glUniform1i(location, (Integer) value);
             } else if (value instanceof Float) {
                 glUniform1f(location, (Float) value);
+            } else if (value instanceof Double) {
+                glUniform1f(location, ((Double) value).floatValue());
             } else if (value instanceof Boolean) {
                 glUniform1i(location, (Boolean) value ? 1 : 0);
             } else if (value instanceof Matrix4f) {

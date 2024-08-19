@@ -1,8 +1,8 @@
 package dev.xernas.oxygen.render.vulkan.model;
 
 import dev.xernas.oxygen.exception.OxygenException;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModelData;
+import dev.xernas.oxygen.render.model.IModel;
+import dev.xernas.oxygen.render.model.IModelData;
 import dev.xernas.oxygen.render.vulkan.buffers.VulkanBuffer;
 import dev.xernas.oxygen.render.vulkan.command.CommandBuffer;
 import dev.xernas.oxygen.render.vulkan.command.CommandPool;

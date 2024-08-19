@@ -1,7 +1,7 @@
 package dev.xernas.oxygen.engine.resource;
 
 import dev.xernas.oxygen.engine.material.Material;
-import dev.xernas.oxygen.render.oxygen.model.Model;
+import dev.xernas.oxygen.engine.model.Model;
 
 public interface IFormat {
 

@@ -1,6 +1,11 @@
 package dev.xernas.oxygen.engine.camera;
 
+import dev.xernas.oxygen.Oxygen;
+import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.behaviors.Transform;
+import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.opengl.OGLRenderer;
+import dev.xernas.oxygen.render.utils.TransformUtils;
 import org.joml.Vector3f;
 
 public class CameraTransform extends Transform {
@@ -28,5 +33,11 @@ public class CameraTransform extends Transform {
             getPosition().z += (float) Math.cos(Math.toRadians(getRotation().y - 90)) * offset.x;
         }
         getPosition().y += offset.y;
+    }
+
+    @Override
+    public void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+        super.render(renderer, parent);
+        renderer.getCurrentShaderProgram().setUniform("viewMatrix", TransformUtils.createViewMatrix(this));
     }
 }

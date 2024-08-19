@@ -1,10 +1,9 @@
 package dev.xernas.oxygen.engine.resource.formats;
 
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.material.Material;
 import dev.xernas.oxygen.engine.resource.IFormat;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
-import dev.xernas.oxygen.render.oxygen.model.Model;
+import dev.xernas.oxygen.engine.model.Model;
 
 public class ObjFormat implements IFormat {
 
@@ -57,8 +56,8 @@ public class ObjFormat implements IFormat {
                 textured ? material.getSimpleTexturePath() : null,
                 material.getBaseColor(),
                 material.illuminable(),
-                material.getShininess(),
-                material.getShineDamper());
+                material.getReflectivity(),
+                material.getReflectionVisibility());
         return new Model(vertices, indices, texCoords, normals, newMaterial);
     }
 

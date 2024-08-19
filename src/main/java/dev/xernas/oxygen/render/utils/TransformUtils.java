@@ -21,9 +21,7 @@ public class TransformUtils {
         return matrix4f;
     }
 
-    public static Matrix4f createViewMatrix(Camera camera) {
-        CameraTransform transform = camera.getBehavior(CameraTransform.class);
-        if (transform == null) throw new NullPointerException("Camera has no Transform behavior - FATAL (please contact a contributor)");
+    public static Matrix4f createViewMatrix(CameraTransform transform) {
         Vector3f position = transform.getPosition();
         Vector3f rotation = transform.getRotation();
         Matrix4f viewMatrix = new Matrix4f();

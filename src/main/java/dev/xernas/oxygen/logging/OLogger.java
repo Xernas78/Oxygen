@@ -3,6 +3,7 @@ package dev.xernas.oxygen.logging;
 import dev.xernas.oxygen.exception.OxygenException;
 
 import java.io.PrintStream;
+import java.util.List;
 
 public class OLogger {
 
@@ -43,6 +44,14 @@ public class OLogger {
 
     public void debug(String message, Object obj) {
         debug(message.replace("{}", obj == null ? "null" : obj.toString()));
+    }
+
+    public void debugList(List<?> list, String message) {
+        StringBuilder builder = new StringBuilder();
+        for (Object obj : list) {
+            builder.append(obj).append(", ");
+        }
+        debug(message.replace("{}", builder.toString()));
     }
 
 }

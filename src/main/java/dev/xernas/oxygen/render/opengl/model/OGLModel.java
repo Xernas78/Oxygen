@@ -1,41 +1,40 @@
 package dev.xernas.oxygen.render.opengl.model;
 
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.exception.OxygenException;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModelData;
+import dev.xernas.oxygen.render.model.IModel;
+import dev.xernas.oxygen.render.model.IModelData;
 
 public class OGLModel implements IModel {
 
-    private final OGLModelData OGLModelData;
+    private final OGLModelData oglModelData;
 
-    public OGLModel(OGLModelData OGLModelData) {
-        this.OGLModelData = OGLModelData;
+    public OGLModel(OGLModelData oglModelData) {
+        this.oglModelData = oglModelData;
     }
 
     @Override
     public void init() throws OxygenException {
-        OGLModelData.init();
+        oglModelData.init();
     }
 
     @Override
     public void cleanup() throws OxygenException {
-        OGLModelData.cleanup();
+        oglModelData.cleanup();
     }
 
     @Override
     public Integer getModelId() {
-        return OGLModelData.getId();
+        return oglModelData.getId();
     }
 
     public OGLModelData getModelData() {
-        return OGLModelData;
+        return oglModelData;
     }
 
     public static OGLModel transformModel(IModelData modelData) throws OxygenException {
-        OGLModelData OGLModelData = (OGLModelData) modelData;
-        OGLModel OGLModel = new OGLModel(OGLModelData);
-        OGLModel.init();
-        return OGLModel;
+        OGLModelData finalOGLModelData = (OGLModelData) modelData;
+        OGLModel finalOGLModel = new OGLModel(finalOGLModelData);
+        finalOGLModel.init();
+        return finalOGLModel;
     }
 }

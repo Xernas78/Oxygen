@@ -97,10 +97,13 @@ public class OGLShaderProgram implements IOGLObject {
         if (programId != 0) glDeleteProgram(programId);
     }
 
-    public <T> void setUniform(String name, T value) {
+    public <T> void setUniform(String name, T value) throws OxygenException {
         int location = glGetUniformLocation(programId, name);
         if (location == -1) return;
-        Uniform<T> uniform = new Uniform<>(name, location, value);
+        Uniform<T> uniform = new Uniform<>(name, location);
+        if (value == null) {
+            throw new OxygenException("Trying to set uniform with null value: " + name);
+        }
         uniform.setValue(value);
     }
 

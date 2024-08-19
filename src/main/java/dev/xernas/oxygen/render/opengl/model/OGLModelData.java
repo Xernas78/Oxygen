@@ -1,23 +1,29 @@
 package dev.xernas.oxygen.render.opengl.model;
 
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.IOGLObject;
 import dev.xernas.oxygen.render.opengl.utils.BufferUtils;
 import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModelData;
+import dev.xernas.oxygen.render.model.IModelData;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
 
 public class OGLModelData implements IModelData {
+
+    private static int uniqueIdCounter = 0;
+    private static OGLModelData previousModel = null;
+
+    private static final Map<Integer, List<Integer>> alreadyLoadedModels = new HashMap<>();
+    private static final Map<Integer, List<Integer>> alreadyLoadedTextures = new HashMap<>();
 
     private VAO vao;
     private final List<Integer> textures = new ArrayList<>();
@@ -27,15 +33,16 @@ public class OGLModelData implements IModelData {
     private final float[] normals;
     private final float[] textureCoords;
     private final String absoluteTexturePath;
+    private final int uniqueId = createUniqueId();
 
     private int id;
     private int indicesCount;
     private int textureId;
 
-    private FloatBuffer verticesBuffer;
-    private IntBuffer indicesBuffer;
-    private FloatBuffer normalsBuffer;
-    private FloatBuffer textureCoordsBuffer;
+    private FloatBuffer verticesBuffer = null;
+    private IntBuffer indicesBuffer = null;
+    private FloatBuffer normalsBuffer = null;
+    private FloatBuffer textureCoordsBuffer = null;
 
     public OGLModelData(float[] vertices, int[] indices, float[] normals, float[] textureCoords, String absoluteTexturePath) {
         this.vertices = vertices;
@@ -45,36 +52,45 @@ public class OGLModelData implements IModelData {
         this.absoluteTexturePath = absoluteTexturePath;
     }
 
-    public OGLModelData(OGLModelData modelData, float[] textureCoords, String absoluteTexturePath) {
-        this.vertices = modelData.vertices;
-        this.indices = modelData.indices;
-        this.normals = modelData.normals;
-        this.textureCoords = textureCoords;
-        this.absoluteTexturePath = absoluteTexturePath;
-    }
-
     @Override
     public void init() throws OxygenException {
+        if (Objects.nonNull(previousModel)) {
+            if (Arrays.equals(vertices, previousModel.vertices) && Arrays.equals(indices, previousModel.indices) && Arrays.equals(normals, previousModel.normals) && Arrays.equals(textureCoords, previousModel.textureCoords)) {
+                vao = previousModel.vao;
+                id = previousModel.id;
+                indicesCount = previousModel.indicesCount;
+                verticesBuffer = previousModel.verticesBuffer;
+                indicesBuffer = previousModel.indicesBuffer;
+                normalsBuffer = previousModel.normalsBuffer;
+                textureCoordsBuffer = previousModel.textureCoordsBuffer;
+            }
+            if (Objects.equals(previousModel.absoluteTexturePath, absoluteTexturePath)) textureId = previousModel.textureId;
+        }
+        previousModel = this;
+        if (Objects.nonNull(vao)) {
+            if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(absoluteTexturePath, textures);
+            return;
+        }
         vao = new VAO();
         vao.init();
+        this.id = vao.getVaoId();
         indicesBuffer = vao.storeIndicesBuffer(indices);
+        this.indicesCount = indices.length;
         verticesBuffer = vao.storeDataInAttributeList(0, 3, vertices);
         if (hasTexture()) textureCoordsBuffer = vao.storeDataInAttributeList(1, 2, textureCoords);
         if (hasNormals()) normalsBuffer = vao.storeDataInAttributeList(2, 3, normals);
+        if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(absoluteTexturePath, textures);
         unbind();
-        this.id = vao.getVaoId();
-        this.indicesCount = indices.length;
-        if (hasTexture()) textureId = OGLUtils.loadTexture(absoluteTexturePath, textures);
     }
 
     @Override
     public void cleanup() throws OxygenException {
         vao.cleanup();
         for (int texture : textures) glDeleteTextures(texture);
-        MemoryUtil.memFree(verticesBuffer);
-        MemoryUtil.memFree(indicesBuffer);
-        if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
-        if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
+        if (previousModel.verticesBuffer != verticesBuffer) MemoryUtil.memFree(verticesBuffer);
+        if (previousModel.indicesBuffer != indicesBuffer)MemoryUtil.memFree(indicesBuffer);
+        if (previousModel.textureCoordsBuffer != textureCoordsBuffer) if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
+        if (previousModel.normalsBuffer != normalsBuffer) if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
     }
 
     public void bind() throws OpenGLException {
@@ -82,6 +98,10 @@ public class OGLModelData implements IModelData {
         if (hasTexture()) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureId);
+        }
+        else {
+            // Unbind any texture if the model does not have one
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
 
@@ -103,6 +123,14 @@ public class OGLModelData implements IModelData {
     @Override
     public boolean hasNormals() {
         return normals != null && normals.length > 0;
+    }
+
+    public int createUniqueId() {
+        return uniqueIdCounter++;
+    }
+
+    public int getUniqueId() {
+        return uniqueId;
     }
 
     public int getId() {

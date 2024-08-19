@@ -7,13 +7,12 @@ import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.render.opengl.model.OGLModel;
 import dev.xernas.oxygen.render.opengl.model.OGLModelData;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModelData;
-import dev.xernas.oxygen.render.oxygen.model.Model;
+import dev.xernas.oxygen.render.model.IModelData;
+import dev.xernas.oxygen.engine.model.Model;
 import dev.xernas.oxygen.render.utils.Lib;
 import dev.xernas.oxygen.render.vulkan.model.VulkanModelData;
 
-import java.util.Collections;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
@@ -21,6 +20,7 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class ModelRenderer implements Behavior {
 
+    private static final Map<Integer, List<OGLModelData>> batches = new HashMap<>();
     private final Model model;
 
     private IModelData modelData;
@@ -32,19 +32,23 @@ public class ModelRenderer implements Behavior {
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public final void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
         if (Oxygen.getLib() == Lib.OPENGL) {
             modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial().getTexturePath());
             oglModel = OGLModel.transformModel(modelData);
+//            List<OGLModelData> batch = batches.getOrDefault(oglModel.getModelId(), new ArrayList<>());
+//            batch.add(oglModel.getModelData());
+//            batches.put(oglModel.getModelId(), batch);
+//            Oxygen.LOGGER.debug("---------");
+//            Oxygen.LOGGER.debug("Current batches size: " + batches.size());
+//            int i = 0;
+//            for (List<OGLModelData> oglModelData : batches.values()) {
+//                Oxygen.LOGGER.debugList(oglModelData, "Batch n°" + i + " : {}");
+//                i++;
+//            }
         } else if (Oxygen.getLib() == Lib.VULKAN) {
             modelData = new VulkanModelData(Oxygen.getVulkanModelIdCounter(), Collections.singletonList(new VulkanModelData.MeshData(model.getVertices(), model.getIndices())));
             Oxygen.incrementVulkanModelIdCounter();
-        }
-        if (!modelData.hasTexture()) {
-            Oxygen.LOGGER.warn("Model has no texture");
-        }
-        if (!modelData.hasNormals()) {
-            Oxygen.LOGGER.warn("Model has no normals");
         }
     }
 
@@ -54,35 +58,40 @@ public class ModelRenderer implements Behavior {
     }
 
     @Override
-    public void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+    public final void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
         if (modelData == null) return;
+        OGLModelData modelData = oglModel.getModelData();
+
         renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
-        renderer.getCurrentShaderProgram().setUniform("isTextured", oglModel.getModelData().hasTexture());
+        renderer.getCurrentShaderProgram().setUniform("isTextured", modelData.hasTexture());
         renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
-        renderer.getCurrentShaderProgram().setUniform("shineDamper", model.getMaterial().getShineDamper());
-        renderer.getCurrentShaderProgram().setUniform("shininess", model.getMaterial().getShininess());
+        renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
+        renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
         renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
-        oglModel.getModelData().bind();
+
+        modelData.bind();
         glEnableVertexAttribArray(0);
-        if (oglModel.getModelData().hasTexture()) glEnableVertexAttribArray(1);
-        if (oglModel.getModelData().hasNormals()) glEnableVertexAttribArray(2);
-        glDrawElements(GL_TRIANGLES, oglModel.getModelData().getIndicesCount(), GL_UNSIGNED_INT, 0);
+        if (modelData.hasTexture()) glEnableVertexAttribArray(1);
+        if (modelData.hasNormals()) glEnableVertexAttribArray(2);
+
+        glDrawElements(GL_TRIANGLES, modelData.getIndicesCount(), GL_UNSIGNED_INT, 0);
+
         glDisableVertexAttribArray(0);
-        if (oglModel.getModelData().hasTexture()) glDisableVertexAttribArray(1);
-        if (oglModel.getModelData().hasNormals()) glDisableVertexAttribArray(2);
-        oglModel.getModelData().unbind();
+        if (modelData.hasTexture()) glDisableVertexAttribArray(1);
+        if (modelData.hasNormals()) glDisableVertexAttribArray(2);
+        modelData.unbind();
     }
 
     @Override
-    public void cleanup(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public final void cleanup(Oxygen oxygen, SceneObject parent) throws OxygenException {
         oglModel.cleanup();
     }
 
-    public Model getModel() {
+    public final Model getModel() {
         return model;
     }
 
-    public IModelData getModelData() {
+    public final IModelData getModelData() {
         return modelData;
     }
 }

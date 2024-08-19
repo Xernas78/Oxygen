@@ -7,16 +7,15 @@ import java.awt.*;
 
 public class Material {
 
-    public static Material DEFAULT = new Material(Color.WHITE);
-    public static Material DEBUG = new Material(Color.GRAY, false);
+    public static Material DEFAULT = new Material(Color.decode("#f5deb3"));
+    public static Material DEBUG = new Material(Color.GREEN, false);
 
-    private final ResourceManager resourceManager;
     private final String simpleTexturePath;
     private final String texturePath;
     private final Color baseColor;
     private final boolean illuminable;
-    private final float shininess;
-    private final float shineDamper;
+    private final float reflectivity;
+    private final float reflectionVisibility;
 
     public Material(ResourceManager resourceManager, String texturePath) {
         this(resourceManager, texturePath, Color.WHITE);
@@ -27,34 +26,41 @@ public class Material {
     }
 
     public Material(Color baseColor, boolean illuminable) {
-        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor, illuminable, 0, 1);
+        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor, illuminable, 0.5f, 1);
+    }
+
+    public Material(Color baseColor, float shininess) {
+        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor, true, shininess, shininess * 15);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor) {
-        this(resourceManager, texturePath, baseColor, true, 0, 1);
+        this(resourceManager, texturePath, baseColor, true, 0.5f, 1);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable) {
-        this(resourceManager, texturePath, baseColor, illuminable, 0, 1);
+        this(resourceManager, texturePath, baseColor, illuminable, 0.5f, 1);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, float shininess) {
-        this(resourceManager, texturePath, baseColor, true, shininess, 1);
+        this(resourceManager, texturePath, baseColor, true, shininess, shininess * 15);
     }
 
-    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, float shininess, float shineDamper) {
-        this(resourceManager, texturePath, baseColor, true, shininess, shineDamper);
+    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, float reflectivity, float reflectionVisibility) {
+        this(resourceManager, texturePath, baseColor, true, reflectivity, reflectionVisibility);
     }
 
-    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float shininess, float shineDamper) {
-        this.resourceManager = resourceManager;
+    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float shininess) {
+        this(resourceManager, texturePath, baseColor, illuminable, shininess, shininess * 7.5f);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility) {
         this.simpleTexturePath = texturePath;
         String fileTexturePath = resourceManager.getFileResourceAbsolutePath(resourceManager.getTexturesDir() + texturePath);
         this.texturePath = fileTexturePath == null && texturePath != null ? resourceManager.getFileResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath;
         this.baseColor = baseColor;
         this.illuminable = illuminable;
-        this.shininess = shininess;
-        this.shineDamper = shineDamper;
+        this.reflectivity = reflectivity;
+        this.reflectionVisibility = reflectionVisibility;
     }
 
     public String getSimpleTexturePath() {
@@ -73,11 +79,11 @@ public class Material {
         return illuminable;
     }
 
-    public float getShininess() {
-        return shininess;
+    public float getReflectivity() {
+        return reflectivity;
     }
 
-    public float getShineDamper() {
-        return shineDamper;
+    public float getReflectionVisibility() {
+        return reflectionVisibility;
     }
 }

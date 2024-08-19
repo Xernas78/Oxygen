@@ -8,10 +8,8 @@ import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
 import dev.xernas.oxygen.render.opengl.shader.OGLShaderProgram;
-import dev.xernas.oxygen.render.oxygen.model.interfaces.IModel;
-import dev.xernas.oxygen.engine.resource.ResourceManager;
+import dev.xernas.oxygen.render.utils.TransformUtils;
 
-import java.io.File;
 import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -37,6 +35,8 @@ public class OGLRenderer implements IRenderer {
         for (SceneObject sceneObject : sceneObjects) {
             currentShaderProgramKey = sceneObject.getShaderName();
             getCurrentShaderProgram().bind();
+            getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
+            getCurrentShaderProgram().setUniform("ambientLight", 0.15);
             sceneObject.renderBehaviors(this);
             getCurrentShaderProgram().unbind();
         }
@@ -64,6 +64,8 @@ public class OGLRenderer implements IRenderer {
         loadShaderPrograms(Oxygen.getRemoteResourceManager().getShadersFromShadersDir());
         for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.init();
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
 
     @Override

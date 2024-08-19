@@ -12,9 +12,10 @@ uniform sampler2D textureSampler;
 
 uniform vec3 baseColor;
 
+uniform float ambientLight;
 uniform bool illuminable;
-uniform float shininess;
-uniform float shineDamper;
+uniform float reflectivity;
+uniform float reflectionVisibility;
 uniform vec3 lightColor[10];
 uniform vec3 specularColor[10];
 uniform float lightIntensity[10];
@@ -36,16 +37,16 @@ void main()
 
         vec3 fromLight = -toLight;
         vec3 reflectedDir = reflect(fromLight, normal);
-        float specularFactor = pow(max(dot(reflectedDir, toCamera), 0.0), shineDamper);
+        float specularFactor = pow(max(dot(reflectedDir, toCamera), 0.0), reflectionVisibility);
 
-        vec3 specular = specularFactor * specularColor[i] * shininess;
+        vec3 specular = specularFactor * specularColor[i] * reflectivity;
         vec3 diffuse = brightness * lightColor[i] * lightIntensity[i];
 
         totalDiffuse += diffuse;
         totalSpecular += specular;
     }
 
-    totalLighting = max(totalDiffuse + totalSpecular, 0.1);
+    totalLighting = max(totalDiffuse + totalSpecular, ambientLight);
 
     vec4 textured = texture(textureSampler, texCoordFrag);
     if(!isTextured) {

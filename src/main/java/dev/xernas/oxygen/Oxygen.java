@@ -66,7 +66,7 @@ public class Oxygen {
     }
 
 
-    public void init() {
+    public void launch() {
         glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
         try {
             if (!glfwInit()) throw new GLFWException("Unable to initialize GLFW");

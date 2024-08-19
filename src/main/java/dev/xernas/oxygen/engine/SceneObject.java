@@ -5,11 +5,10 @@ import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
-import dev.xernas.oxygen.render.oxygen.model.Model;
+import dev.xernas.oxygen.engine.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public abstract class SceneObject {
 
