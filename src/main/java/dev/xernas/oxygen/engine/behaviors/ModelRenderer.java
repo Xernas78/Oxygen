@@ -20,8 +20,10 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class ModelRenderer implements Behavior {
 
-    private static final Map<Integer, List<OGLModelData>> batches = new HashMap<>();
     private final Model model;
+
+    public static int bindsPerFrame = 0;
+    public static int unbindsPerFrame = 0;
 
     private IModelData modelData;
 
@@ -36,16 +38,6 @@ public class ModelRenderer implements Behavior {
         if (Oxygen.getLib() == Lib.OPENGL) {
             modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial().getTexturePath());
             oglModel = OGLModel.transformModel(modelData);
-//            List<OGLModelData> batch = batches.getOrDefault(oglModel.getModelId(), new ArrayList<>());
-//            batch.add(oglModel.getModelData());
-//            batches.put(oglModel.getModelId(), batch);
-//            Oxygen.LOGGER.debug("---------");
-//            Oxygen.LOGGER.debug("Current batches size: " + batches.size());
-//            int i = 0;
-//            for (List<OGLModelData> oglModelData : batches.values()) {
-//                Oxygen.LOGGER.debugList(oglModelData, "Batch n°" + i + " : {}");
-//                i++;
-//            }
         } else if (Oxygen.getLib() == Lib.VULKAN) {
             modelData = new VulkanModelData(Oxygen.getVulkanModelIdCounter(), Collections.singletonList(new VulkanModelData.MeshData(model.getVertices(), model.getIndices())));
             Oxygen.incrementVulkanModelIdCounter();
@@ -60,26 +52,16 @@ public class ModelRenderer implements Behavior {
     @Override
     public final void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
         if (modelData == null) return;
-        OGLModelData modelData = oglModel.getModelData();
+        OGLModelData currentModelData = oglModel.getModelData();
 
         renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
-        renderer.getCurrentShaderProgram().setUniform("isTextured", modelData.hasTexture());
+        renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
         renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
         renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
         renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
         renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
 
-        modelData.bind();
-        glEnableVertexAttribArray(0);
-        if (modelData.hasTexture()) glEnableVertexAttribArray(1);
-        if (modelData.hasNormals()) glEnableVertexAttribArray(2);
-
-        glDrawElements(GL_TRIANGLES, modelData.getIndicesCount(), GL_UNSIGNED_INT, 0);
-
-        glDisableVertexAttribArray(0);
-        if (modelData.hasTexture()) glDisableVertexAttribArray(1);
-        if (modelData.hasNormals()) glDisableVertexAttribArray(2);
-        modelData.unbind();
+        renderer.drawElements(currentModelData);
     }
 
     @Override

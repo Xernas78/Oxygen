@@ -166,9 +166,14 @@ public class Window implements IOxygenLogic {
         this.clearColor = color;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(String title, boolean onlyIfInSecond) {
+        if (onlyIfInSecond && !Oxygen.isInSecond()) return;
         this.title = title;
         glfwSetWindowTitle(windowHandle, title);
+    }
+
+    public void setTitle(String title) {
+        setTitle(title, true);
     }
 
     public boolean isKeyPressed(Key key) {

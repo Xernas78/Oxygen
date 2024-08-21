@@ -6,9 +6,11 @@ import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.engine.model.Model;
+import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class SceneObject {
 

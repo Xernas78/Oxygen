@@ -41,6 +41,7 @@ public class Oxygen {
     private static final List<Scene> scenes = new ArrayList<>();
 
     private static boolean running = false;
+    private static boolean inSecond = false;
     private static int fps;
     private static int deltaTime;
     private static Lib lib;
@@ -100,6 +101,7 @@ public class Oxygen {
 
         while (running) {
             boolean render = false;
+            inSecond = false;
             long startTime = System.nanoTime();
             long passedTime = startTime - lastTime;
             lastTime = startTime;
@@ -125,6 +127,7 @@ public class Oxygen {
                     setFps(frames);
                     frames = 0;
                     frameCounter = 0;
+                    inSecond = true;
                 }
             }
 
@@ -174,6 +177,10 @@ public class Oxygen {
 
     public void stop() {
         running = false;
+    }
+
+    public static boolean isInSecond() {
+        return inSecond;
     }
 
     public static int getFps() {

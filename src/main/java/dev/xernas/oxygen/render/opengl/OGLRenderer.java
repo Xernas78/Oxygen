@@ -4,19 +4,26 @@ import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.Window;
 import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.behaviors.LightSource;
+import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
+import dev.xernas.oxygen.render.opengl.model.OGLModel;
+import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 import dev.xernas.oxygen.render.opengl.shader.OGLShaderProgram;
 import dev.xernas.oxygen.render.utils.TransformUtils;
 
 import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class OGLRenderer implements IRenderer {
 
-    private final List<SceneObject> sceneObjects = new ArrayList<>();
+    private static final Map<Integer, List<SceneObject>> batches = new HashMap<>();
+
+    private final List<SceneObject> noModelSceneObjects = new ArrayList<>();
     private final Map<String, OGLShaderProgram> shaderPrograms = new HashMap<>();
 
     private String currentShaderProgramKey;
@@ -32,24 +39,72 @@ public class OGLRenderer implements IRenderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(window.getClearColor().getRed() / 255f, window.getClearColor().getGreen() / 255f, window.getClearColor().getBlue() / 255f, window.getClearColor().getAlpha() / 255f);
         LightSource.lightIndex = 0;
-        for (SceneObject sceneObject : sceneObjects) {
-            currentShaderProgramKey = sceneObject.getShaderName();
-            getCurrentShaderProgram().bind();
-            getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
-            getCurrentShaderProgram().setUniform("ambientLight", 0.15);
-            sceneObject.renderBehaviors(this);
-            getCurrentShaderProgram().unbind();
+        ModelRenderer.bindsPerFrame = 0;
+        ModelRenderer.unbindsPerFrame = 0;
+        for (SceneObject sceneObject : noModelSceneObjects) {
+            renderSceneObject(sceneObject);
         }
+        for (Integer modelData : batches.keySet()) {
+            List<SceneObject> sceneObjects = batches.get(modelData);
+            bindModel(OGLModelData.byId(modelData));
+            for (SceneObject sceneObject : sceneObjects) {
+                renderSceneObject(sceneObject);
+            }
+            unbindModel(OGLModelData.byId(modelData));
+        }
+    }
+
+    private void renderSceneObject(SceneObject sceneObject) throws OxygenException {
+        currentShaderProgramKey = sceneObject.getShaderName();
+        getCurrentShaderProgram().bind();
+        getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
+        getCurrentShaderProgram().setUniform("ambientLight", 0.15);
+        sceneObject.renderBehaviors(this);
+        getCurrentShaderProgram().unbind();
+    }
+
+    public void bindModel(OGLModelData modelData) throws OpenGLException {
+        modelData.bind();
+        glEnableVertexAttribArray(0);
+        if (modelData.hasTexture()) glEnableVertexAttribArray(1);
+        if (modelData.hasNormals()) glEnableVertexAttribArray(2);
+    }
+
+    public void unbindModel(OGLModelData modelData) throws OpenGLException {
+        glDisableVertexAttribArray(0);
+        if (modelData.hasTexture()) glDisableVertexAttribArray(1);
+        if (modelData.hasNormals()) glDisableVertexAttribArray(2);
+        modelData.unbind();
+    }
+
+    public void drawElements(OGLModelData currentModelData) {
+        glDrawElements(GL_TRIANGLES, currentModelData.getIndicesCount(), GL_UNSIGNED_INT, 0);
+    }
+
+    public static void addSceneObjectToBatch(SceneObject sceneObject, Integer modelData) {
+        List<SceneObject> batch = getBatch(modelData);
+        if (batch == null) batch = new ArrayList<>();
+        batch.add(sceneObject);
+        batches.put(modelData, batch);
+    }
+
+    public static List<SceneObject> getBatch(Integer modelDataId) {
+        return batches.get(modelDataId);
     }
 
     @Override
     public void loadSceneObjects(List<SceneObject> sceneObjects) throws OxygenException {
-        this.sceneObjects.addAll(sceneObjects);
+        for (SceneObject sceneObject : sceneObjects) loadSceneObject(sceneObject);
     }
 
     @Override
     public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
-        this.sceneObjects.add(sceneObject);
+        ModelRenderer modelRenderer = sceneObject.getBehavior(ModelRenderer.class);
+        if (modelRenderer == null) this.noModelSceneObjects.add(sceneObject);
+        else {
+            OGLModelData oglModelData = (OGLModelData) modelRenderer.getModelData();
+            addSceneObjectToBatch(sceneObject, oglModelData.getId());
+        }
     }
 
     public void loadShaderPrograms(List<OGLShaderProgram> shaderPrograms) {
