@@ -9,7 +9,10 @@ import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
 import org.lwjgl.opengl.GL20;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -108,11 +111,11 @@ public class OGLShaderProgram implements IOGLObject {
     }
 
     private String readShader(String shaderName, String name) throws OxygenException {
-        File file = resourceManager.getFileFromResource(resourceManager.getShadersDir() + shaderName + "/" + name);
-        if (!file.exists()) {
-            throw new OpenGLException("Resource not found: " + file.getPath());
+        Path filePath = resourceManager.getResourcePath(resourceManager.getShadersDir() + shaderName + "/" + name);
+        if (!Files.exists(filePath)) {
+            throw new OpenGLException("Resource not found: " + filePath);
         }
-        try (InputStream is = new FileInputStream(file)) {
+        try (InputStream is = Files.newInputStream(filePath)) {
             Scanner scanner = new Scanner(is, StandardCharsets.UTF_8);
             return scanner.useDelimiter("\\A").next();
         } catch (IOException e) {

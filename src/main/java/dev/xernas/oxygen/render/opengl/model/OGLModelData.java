@@ -1,6 +1,5 @@
 package dev.xernas.oxygen.render.opengl.model;
 
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
@@ -12,6 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.lwjgl.opengl.GL15.*;
@@ -32,7 +32,7 @@ public class OGLModelData implements IModelData {
     private final int[] indices;
     private final float[] normals;
     private final float[] textureCoords;
-    private final String absoluteTexturePath;
+    private final Path texturePath;
     private final int uniqueId = createUniqueId();
 
     private int id;
@@ -44,12 +44,12 @@ public class OGLModelData implements IModelData {
     private FloatBuffer normalsBuffer = null;
     private FloatBuffer textureCoordsBuffer = null;
 
-    public OGLModelData(float[] vertices, int[] indices, float[] normals, float[] textureCoords, String absoluteTexturePath) {
+    public OGLModelData(float[] vertices, int[] indices, float[] normals, float[] textureCoords, Path texturePath) {
         this.vertices = vertices;
         this.indices = indices;
         this.normals = normals;
         this.textureCoords = textureCoords;
-        this.absoluteTexturePath = absoluteTexturePath;
+        this.texturePath = texturePath;
     }
 
     @Override
@@ -64,10 +64,10 @@ public class OGLModelData implements IModelData {
                 normalsBuffer = previousModel.normalsBuffer;
                 textureCoordsBuffer = previousModel.textureCoordsBuffer;
             }
-            if (Objects.equals(previousModel.absoluteTexturePath, absoluteTexturePath)) textureId = previousModel.textureId;
+            if (Objects.equals(previousModel.texturePath, texturePath)) textureId = previousModel.textureId;
         }
         if (Objects.nonNull(vao)) {
-            if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(absoluteTexturePath, textures);
+            if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(texturePath, textures);
             previousModel = this;
             return;
         }
@@ -79,7 +79,7 @@ public class OGLModelData implements IModelData {
         verticesBuffer = vao.storeDataInAttributeList(0, 3, vertices);
         if (hasTexture()) textureCoordsBuffer = vao.storeDataInAttributeList(1, 2, textureCoords);
         if (hasNormals()) normalsBuffer = vao.storeDataInAttributeList(2, 3, normals);
-        if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(absoluteTexturePath, textures);
+        if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(texturePath, textures);
         unbind();
         previousModel = this;
         modelDataIdMap.put(id, this);
@@ -120,7 +120,7 @@ public class OGLModelData implements IModelData {
 
     @Override
     public boolean hasTexture() {
-        return absoluteTexturePath != null && !absoluteTexturePath.isEmpty() && textureCoords != null && textureCoords.length > 0;
+        return texturePath != null && textureCoords != null && textureCoords.length > 0;
     }
 
     @Override

@@ -4,6 +4,7 @@ import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
 
 import java.awt.*;
+import java.nio.file.Path;
 
 public class Material {
 
@@ -11,7 +12,7 @@ public class Material {
     public static Material DEBUG = new Material(Color.GREEN, false);
 
     private final String simpleTexturePath;
-    private final String texturePath;
+    private final Path texturePath;
     private final Color baseColor;
     private final boolean illuminable;
     private final float reflectivity;
@@ -55,8 +56,8 @@ public class Material {
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility) {
         this.simpleTexturePath = texturePath;
-        String fileTexturePath = resourceManager.getFileResourceAbsolutePath(resourceManager.getTexturesDir() + texturePath);
-        this.texturePath = fileTexturePath == null && texturePath != null ? resourceManager.getFileResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath;
+        Path fileTexturePath = resourceManager.getResourceAbsolutePath(resourceManager.getTexturesDir() + texturePath);
+        this.texturePath = fileTexturePath == null ? resourceManager.getResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath;
         this.baseColor = baseColor;
         this.illuminable = illuminable;
         this.reflectivity = reflectivity;
@@ -67,7 +68,7 @@ public class Material {
         return simpleTexturePath;
     }
 
-    public String getTexturePath() {
+    public Path getTexturePath() {
         return texturePath;
     }
 

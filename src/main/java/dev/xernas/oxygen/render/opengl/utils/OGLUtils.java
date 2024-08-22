@@ -1,13 +1,20 @@
 package dev.xernas.oxygen.render.opengl.utils;
 
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.resource.img.Image;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -20,8 +27,8 @@ public class OGLUtils {
         return obj;
     }
 
-    public static int loadTexture(String absoluteTextPath, List<Integer> textures) throws OxygenException {
-        Image image = loadImage(absoluteTextPath);
+    public static int loadTexture(Path textPath, List<Integer> textures) throws OxygenException {
+        Image image = loadImage(textPath);
         ByteBuffer buffer = image.getData();
         int width = image.getWidth();
         int height = image.getHeight();
@@ -40,20 +47,37 @@ public class OGLUtils {
         return id;
     }
 
-    public static Image loadImage(String absoluteTextPath) throws OxygenException {
+    public static Image loadImage(Path iconPath) throws OxygenException {
         int width, height;
-        ByteBuffer buffer;
+        ByteBuffer imageBuffer;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            // Use the MemoryStack for temporary storage
             IntBuffer widthBuffer = stack.mallocInt(1);
             IntBuffer heightBuffer = stack.mallocInt(1);
             IntBuffer channelsBuffer = stack.mallocInt(1);
-            buffer = STBImage.stbi_load(absoluteTextPath, widthBuffer, heightBuffer, channelsBuffer, 4);
-            if (buffer == null) throw new OxygenException("Error loading image file: " + STBImage.stbi_failure_reason());
 
-            width = widthBuffer.get();
-            height = heightBuffer.get();
+            // Convert the Path to an InputStream
+            try (InputStream inputStream = Files.newInputStream(iconPath)) {
+                // Read the InputStream into a ByteBuffer
+                byte[] bytes = inputStream.readAllBytes();
+                imageBuffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
+                imageBuffer.flip(); // Reset buffer position to zero for reading
+
+                // Use STBImage to load the image from the ByteBuffer
+                ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, widthBuffer, heightBuffer, channelsBuffer, 4);
+                if (buffer == null) {
+                    throw new OxygenException("Error loading image file: " + STBImage.stbi_failure_reason());
+                }
+
+                width = widthBuffer.get();
+                height = heightBuffer.get();
+
+                return new Image(width, height, buffer);
+            }
+        } catch (IOException e) {
+            throw new OxygenException("Error loading image file: " + iconPath);
         }
-        return new Image(width, height, buffer);
     }
 
 }

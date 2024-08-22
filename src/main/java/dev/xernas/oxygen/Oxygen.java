@@ -14,6 +14,7 @@ import dev.xernas.oxygen.render.vulkan.VulkanRenderer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GLUtil;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import static org.lwjgl.glfw.GLFWVulkan.glfwVulkanSupported;
 public class Oxygen {
 
     private static final long SECOND = 1000000000L;
-    private static final long MILLISSECOND = 1000000L;
+    private static final long MILLISECOND = 1000000L;
     private static final float TARGET_FRAMERATE = 1000f;
     private static final float FRAMETIME = 1.0f / TARGET_FRAMERATE;
 
@@ -43,6 +44,7 @@ public class Oxygen {
     private static boolean running = false;
     private static boolean inSecond = false;
     private static int fps;
+    private static int frameCount;
     private static int deltaTime;
     private static Lib lib;
     private static int currentSceneIndex = 0;
@@ -101,12 +103,13 @@ public class Oxygen {
 
         while (running) {
             boolean render = false;
+            frameCount = 0;
             inSecond = false;
             long startTime = System.nanoTime();
             long passedTime = startTime - lastTime;
             lastTime = startTime;
 
-            setDeltaTime((int) (passedTime / MILLISSECOND));
+            setDeltaTime((int) (passedTime / MILLISECOND));
             unprocessedTime += passedTime / (float) SECOND;
             frameCounter += passedTime;
 
@@ -133,6 +136,7 @@ public class Oxygen {
 
             if (render) {
                 renderer.render();
+                frameCount++;
                 frames++;
             }
         }
@@ -142,6 +146,7 @@ public class Oxygen {
         getCurrentScene().cleanupObjects(this);
         renderer.cleanup();
         window.cleanup();
+        ResourceManager.closeFileSystems();
         glfwTerminate();
     }
 
@@ -189,6 +194,10 @@ public class Oxygen {
 
     public static void setFps(int fps) {
         Oxygen.fps = fps;
+    }
+
+    public static int getFrameCount() {
+        return frameCount;
     }
 
     public static int getDeltaTime() {
@@ -251,7 +260,7 @@ public class Oxygen {
         private Boolean debug = false;
         private Lib lib = Lib.OPENGL;
         private ResourceManager remoteResourceManager;
-        private String absoluteIconPath = OXYGEN_RESOURCE_MANAGER.getFileResourceAbsolutePath("textures/oxygen.png");
+        private Path iconPath = OXYGEN_RESOURCE_MANAGER.getResourceAbsolutePath("textures/oxygen.png");
 
         public Builder(String title, ResourceManager remoteResourceManager) {
             this.title = title;
@@ -313,13 +322,14 @@ public class Oxygen {
             return this;
         }
 
-        public Builder absoluteIconPath(String absoluteIconPath) {
-            this.absoluteIconPath = absoluteIconPath;
+        public Builder iconPath(String resourceIconPath) {
+            this.iconPath = remoteResourceManager.getResourceAbsolutePath(resourceIconPath);
+            if (iconPath == null) iconPath = OXYGEN_RESOURCE_MANAGER.getResourceAbsolutePath("textures/oxygen.png");
             return this;
         }
 
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, absoluteIconPath), vsync, debug, lib, remoteResourceManager);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
         }
     }
 }

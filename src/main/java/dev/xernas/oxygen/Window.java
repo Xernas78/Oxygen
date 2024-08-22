@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL;
 
 import java.awt.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -32,13 +33,13 @@ public class Window implements IOxygenLogic {
     private final boolean resizable;
     private boolean maximized;
     private final boolean vsync;
-    private final String absoluteIconPath;
+    private final Path iconPath;
 
     private final Input input;
 
     private Color clearColor = Color.WHITE;
 
-    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean vsync, String absoluteIconPath) {
+    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean vsync, Path iconPath) {
         this.defaultTitle = title;
         this.title = title;
         this.width = width;
@@ -47,7 +48,7 @@ public class Window implements IOxygenLogic {
         this.maximized = maximized;
         this.vsync = vsync;
         this.input = new Input(this);
-        this.absoluteIconPath = absoluteIconPath;
+        this.iconPath = iconPath;
     }
 
     @Override
@@ -73,13 +74,18 @@ public class Window implements IOxygenLogic {
             GL.createCapabilities();
         }
 
-        Image icon = OGLUtils.loadImage(absoluteIconPath);
-        ByteBuffer iconBuffer = icon.getData();
-        try (GLFWImage.Buffer icons = GLFWImage.create(1)) {
-            GLFWImage iconImage = GLFWImage.create().set(icon.getWidth(), icon.getHeight(), iconBuffer);
-            icons.put(0, iconImage);
-            glfwSetWindowIcon(windowHandle, icons);
+        try {
+            Image icon = OGLUtils.loadImage(iconPath);
+            ByteBuffer iconBuffer = icon.getData();
+            try (GLFWImage.Buffer icons = GLFWImage.create(1)) {
+                GLFWImage iconImage = GLFWImage.create().set(icon.getWidth(), icon.getHeight(), iconBuffer);
+                icons.put(0, iconImage);
+                glfwSetWindowIcon(windowHandle, icons);
+            }
+        } catch (OxygenException e) {
+            Oxygen.LOGGER.warn("Failed to load window icon: " + e.getMessage());
         }
+
     }
 
     @Override
