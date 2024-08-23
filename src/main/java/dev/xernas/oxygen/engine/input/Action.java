@@ -1,12 +1,13 @@
 package dev.xernas.oxygen.engine.input;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
 
 public enum Action {
 
     PRESS(GLFW_PRESS),
-    RELEASE(GLFW_RELEASE);
+    RELEASE(GLFW_RELEASE),
+    HOLD(GLFW_REPEAT),
+    IDLE(-1);
 
     private final int actionCode;
 
@@ -14,7 +15,7 @@ public enum Action {
         this.actionCode = actionCode;
     }
 
-    public static Action getActionFromCode(int code) {
+    public static Action fromCode(int code) {
         for (Action action : values()) {
             if (action.actionCode == code) {
                 return action;

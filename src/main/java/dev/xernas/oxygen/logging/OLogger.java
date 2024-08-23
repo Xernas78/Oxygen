@@ -4,6 +4,7 @@ import dev.xernas.oxygen.exception.OxygenException;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 public class OLogger {
 
@@ -52,6 +53,14 @@ public class OLogger {
             builder.append(obj).append(", ");
         }
         debug(message.replace("{}", builder.toString()));
+    }
+
+    public void debugMap(Map<?, ?> map, String message) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+        }
+        debug(message.replace("{}", builder.toString().isEmpty() ? "Empty" : builder.toString()));
     }
 
 }

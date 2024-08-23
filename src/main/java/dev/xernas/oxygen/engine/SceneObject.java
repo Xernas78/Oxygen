@@ -6,11 +6,10 @@ import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.engine.model.Model;
-import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public abstract class SceneObject {
 
@@ -60,15 +59,12 @@ public abstract class SceneObject {
         }
     }
 
-    public final void updateBehaviors(Oxygen oxygen) {
-        for (Behavior behavior : behaviors) {
-            behavior.update(oxygen, this);
-        }
+    public final void updateBehaviors(Oxygen oxygen) throws OxygenException {
+        for (Behavior behavior : behaviors) behavior.update(oxygen, this);
     }
 
-    public final void inputBehaviors(Oxygen oxygen) {
+    public final void inputBehaviors(Oxygen oxygen) throws OxygenException {
         for (Behavior behavior : behaviors) behavior.input(oxygen, oxygen.getWindow().getInput());
-
     }
 
     public final void renderBehaviors(OGLRenderer renderer) throws OxygenException {
@@ -106,5 +102,15 @@ public abstract class SceneObject {
                 }
             }
         }
+    }
+
+    public static void instantiate(Oxygen oxygen, SceneObject object) throws OxygenException {
+        instantiate(oxygen, Oxygen.getCurrentScene(), object);
+    }
+
+    public static void instantiate(Oxygen oxygen, Scene scene, SceneObject object) throws OxygenException {
+        scene.addObject(object);
+        object.startBehaviors(oxygen);
+        oxygen.getRenderer().loadSceneObject(object);
     }
 }

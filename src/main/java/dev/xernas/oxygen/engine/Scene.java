@@ -5,14 +5,22 @@ import dev.xernas.oxygen.engine.camera.Camera;
 import dev.xernas.oxygen.exception.OxygenException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class Scene {
 
     private final List<SceneObject> objects = new ArrayList<>();
 
-    public Scene addObject(SceneObject object) {
+    public void addObject(SceneObject object) {
         objects.add(object);
+    }
+
+    public Scene addObjects(SceneObject... objects) {
+        for (SceneObject object : objects) {
+            addObject(object);
+        }
         return this;
     }
 
@@ -28,12 +36,14 @@ public class Scene {
         oxygen.getRenderer().loadSceneObjects(objects);
     }
 
-    public void updateObjects(Oxygen oxygen) {
-        for (SceneObject object : objects) object.updateBehaviors(oxygen);
+    public void updateObjects(Oxygen oxygen) throws OxygenException {
+        List<SceneObject> updateObjects = new ArrayList<>(objects);
+        for (SceneObject object : updateObjects) object.updateBehaviors(oxygen);
     }
 
-    public void inputObjects(Oxygen oxygen) {
-        for (SceneObject object : objects) object.inputBehaviors(oxygen);
+    public void inputObjects(Oxygen oxygen) throws OxygenException {
+        List<SceneObject> inputObjects = new ArrayList<>(objects);
+        for (SceneObject object : inputObjects) object.inputBehaviors(oxygen);
     }
 
     public void cleanupObjects(Oxygen oxygen) throws OxygenException {

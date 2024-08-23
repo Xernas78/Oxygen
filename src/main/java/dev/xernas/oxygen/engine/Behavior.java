@@ -11,9 +11,9 @@ public interface Behavior {
 
     void start(Oxygen oxygen, SceneObject parent) throws OxygenException;
 
-    void update(Oxygen oxygen, SceneObject parent);
+    void update(Oxygen oxygen, SceneObject parent) throws OxygenException;
 
-    default void input(Oxygen oxygen, Input input) {
+    default void input(Oxygen oxygen, Input input) throws OxygenException {
         // Do nothing
     };
 

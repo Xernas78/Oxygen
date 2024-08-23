@@ -79,9 +79,9 @@ public enum Key {
         this.qwerty = qwerty;
     }
 
-    public static Key getKeyFromCode(int code) {
+    public static Key fromCode(int code, boolean azerty) {
         for (Key key : values()) {
-            if (key.getQwerty() == code) {
+            if ((azerty ? key.getQwerty() : key.getAzerty()) == code) {
                 return key;
             }
         }

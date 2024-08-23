@@ -1,5 +1,6 @@
 package dev.xernas.oxygen;
 
+import dev.xernas.oxygen.engine.input.Action;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.engine.input.Key;
 import dev.xernas.oxygen.engine.resource.img.Image;
@@ -47,7 +48,7 @@ public class Window implements IOxygenLogic {
         this.resizable = resizable;
         this.maximized = maximized;
         this.vsync = vsync;
-        this.input = new Input(this);
+        this.input = new Input(this, true);
         this.iconPath = iconPath;
     }
 
@@ -116,13 +117,18 @@ public class Window implements IOxygenLogic {
     private void callbacks() {
         glfwSetFramebufferSizeCallback(windowHandle, (window, w, h) -> resize(w, h));
 
-//        // Keyboard
-//        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> input.getOnKey().accept(new KeyAction(key, action)));
-//
-//        // Mouse
-//        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> input.getOnMouseButton().accept(new KeyAction(button, action)));
+        // Keyboard
+        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
+            input.setKeyAction(Key.fromCode(key, input.isAzerty()), Action.fromCode(action));
+        });
+
+        // Mouse
+        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
+            input.setKeyAction(Key.fromCode(button, input.isAzerty()), Action.fromCode(action));
+        });
+
 //        glfwSetScrollCallback(windowHandle, (window, xoffset, yoffset) -> input.getOnScroll().accept(yoffset));
-//
+
 //        // Cursor
 //        glfwSetCursorPosCallback(windowHandle, (window, x, y) -> input.getCursor().update(x, y));
 //        glfwSetCursorEnterCallback(windowHandle, (window, entered) -> input.getOnCursorEnter().accept(input));
@@ -138,6 +144,10 @@ public class Window implements IOxygenLogic {
     public void update() {
         glfwPollEvents();
         if (Oxygen.getLib() == Lib.OPENGL) glfwSwapBuffers(windowHandle);
+    }
+
+    public void updateInput() {
+        input.updateInput();
     }
 
     public void show() {
@@ -184,6 +194,10 @@ public class Window implements IOxygenLogic {
 
     public boolean isKeyPressed(Key key) {
         return glfwGetKey(windowHandle, key.getQwerty()) == GLFW_PRESS;
+    }
+
+    public boolean isMouseButtonPressed(Key button) {
+        return glfwGetMouseButton(windowHandle, button.getQwerty()) == GLFW_PRESS;
     }
 
     public boolean shouldClose() {

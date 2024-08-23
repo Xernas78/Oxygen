@@ -116,6 +116,7 @@ public class Oxygen {
             window.update();
 
             scenes.get(currentSceneIndex).inputObjects(this);
+            window.updateInput();
 
             while (unprocessedTime > FRAMETIME) {
                 render = true;
@@ -182,6 +183,10 @@ public class Oxygen {
 
     public void stop() {
         running = false;
+    }
+
+    public static boolean isRunning() {
+        return running;
     }
 
     public static boolean isInSecond() {
