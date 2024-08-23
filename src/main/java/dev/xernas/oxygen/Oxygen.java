@@ -25,14 +25,13 @@ public class Oxygen {
 
     private static final long SECOND = 1000000000L;
     private static final long MILLISECOND = 1000000L;
-    private static final float TARGET_FRAMERATE = 1000f;
-    private static final float FRAMETIME = 1.0f / TARGET_FRAMERATE;
 
     public static final OLogger LOGGER = new OLogger();
     public static final ResourceManager OXYGEN_RESOURCE_MANAGER = new ResourceManager(Oxygen.class, "shaders/", "models/", "textures/");
 
     private final String applicationName;
     private final String version;
+    private final float targetFramerate;
     private final boolean vsync;
     private final boolean debug;
 
@@ -52,9 +51,10 @@ public class Oxygen {
 
     private static int vulkanModelIdCounter = 0;
 
-    public Oxygen(String applicationName, String version, Window window, boolean vsync, boolean debug, Lib lib, ResourceManager remoteResourceManager) {
+    public Oxygen(String applicationName, String version, Window window, float targetFramerate, boolean vsync, boolean debug, Lib lib, ResourceManager remoteResourceManager) {
         this.applicationName = applicationName;
         this.version = version;
+        this.targetFramerate = targetFramerate;
         this.vsync = vsync;
         this.debug = debug;
         Oxygen.lib = lib;
@@ -96,6 +96,7 @@ public class Oxygen {
 
     private void loop() throws OxygenException {
         running = true;
+        float frameTime = 1.0f / targetFramerate;
         int frames = 0;
         long frameCounter = 0;
         long lastTime = System.nanoTime();
@@ -117,9 +118,9 @@ public class Oxygen {
 
             scenes.get(currentSceneIndex).inputObjects(this);
 
-            while (unprocessedTime > FRAMETIME) {
+            while (unprocessedTime > frameTime) {
                 render = true;
-                unprocessedTime -= FRAMETIME;
+                unprocessedTime -= frameTime;
                 if (window.shouldClose()) {
                     stop();
                     return;
@@ -256,6 +257,7 @@ public class Oxygen {
         private Integer height = 720;
         private Boolean resizable = false;
         private Boolean maximized = false;
+        private Float targetFramerate = 240.0f;
         private Boolean vsync = false;
         private Boolean debug = false;
         private Lib lib = Lib.OPENGL;
@@ -302,6 +304,11 @@ public class Oxygen {
             return this;
         }
 
+        public Builder targetFramerate(float targetFramerate) {
+            this.targetFramerate = targetFramerate;
+            return this;
+        }
+
         public Builder vsync(boolean vsync) {
             this.vsync = vsync;
             return this;
@@ -329,7 +336,7 @@ public class Oxygen {
         }
 
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, iconPath), targetFramerate, vsync, debug, lib, remoteResourceManager);
         }
     }
 }
