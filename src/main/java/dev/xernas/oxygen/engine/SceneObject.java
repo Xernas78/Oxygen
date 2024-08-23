@@ -61,11 +61,15 @@ public abstract class SceneObject {
     }
 
     public final void updateBehaviors(Oxygen oxygen) {
-        behaviors.forEach(behavior -> behavior.update(oxygen, this));
+        for (Behavior behavior : behaviors) {
+            behavior.update(oxygen, this);
+        }
     }
 
     public final void inputBehaviors(Oxygen oxygen) {
-        behaviors.forEach(behavior -> behavior.input(oxygen, oxygen.getWindow().getInput()));
+        for (Behavior behavior : behaviors) {
+            behavior.input(oxygen, oxygen.getWindow().getInput());
+        }
     }
 
     public final void renderBehaviors(OGLRenderer renderer) throws OxygenException {

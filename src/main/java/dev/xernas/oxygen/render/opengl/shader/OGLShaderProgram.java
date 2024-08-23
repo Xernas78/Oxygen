@@ -7,17 +7,24 @@ import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.IOGLObject;
 import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public class OGLShaderProgram implements IOGLObject {
+
+    private final Map<String, Integer> uniforms = new HashMap<>();
 
     private int programId;
 
@@ -92,6 +99,20 @@ public class OGLShaderProgram implements IOGLObject {
             throw new OpenGLException("Error validating shader program: " + glGetProgramInfoLog(programId));
         }
 
+        // Fill uniform locations
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer count = stack.mallocInt(1);
+            glGetProgramiv(programId, GL_ACTIVE_UNIFORMS, count);
+            for (int i = 0; i < count.get(0); i++) {
+
+                IntBuffer size = stack.mallocInt(1);
+                IntBuffer type = stack.mallocInt(1);
+                String name = glGetActiveUniform(programId, i, size, type).trim();
+                int location = glGetUniformLocation(programId, name);
+                uniforms.put(name, location);
+            }
+        }
+
     }
 
     @Override
@@ -101,7 +122,7 @@ public class OGLShaderProgram implements IOGLObject {
     }
 
     public <T> void setUniform(String name, T value) throws OxygenException {
-        int location = glGetUniformLocation(programId, name);
+        int location = uniforms.getOrDefault(name, -1);
         if (location == -1) return;
         Uniform<T> uniform = new Uniform<>(name, location);
         if (value == null) {

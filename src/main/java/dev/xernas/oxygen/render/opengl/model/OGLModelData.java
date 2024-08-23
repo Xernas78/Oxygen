@@ -20,8 +20,6 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class OGLModelData implements IModelData {
 
-    private static final Map<Integer, OGLModelData> modelDataIdMap = new HashMap<>();
-
     private static int uniqueIdCounter = 0;
     private static OGLModelData previousModel = null;
 
@@ -82,7 +80,6 @@ public class OGLModelData implements IModelData {
         if (textureId == 0) if (hasTexture()) textureId = OGLUtils.loadTexture(texturePath, textures);
         unbind();
         previousModel = this;
-        modelDataIdMap.put(id, this);
     }
 
     @Override
@@ -146,10 +143,6 @@ public class OGLModelData implements IModelData {
 
     public int getTextureId() {
         return textureId;
-    }
-
-    public static OGLModelData byId(Integer modelData) {
-        return modelDataIdMap.get(modelData);
     }
 
     public boolean isEquals(OGLModelData modelData) {

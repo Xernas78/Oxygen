@@ -29,17 +29,15 @@ public class Scene {
     }
 
     public void updateObjects(Oxygen oxygen) {
-        objects.forEach(sceneObject -> sceneObject.updateBehaviors(oxygen));
+        for (SceneObject object : objects) object.updateBehaviors(oxygen);
     }
 
     public void inputObjects(Oxygen oxygen) {
-        objects.forEach(sceneObject -> sceneObject.inputBehaviors(oxygen));
+        for (SceneObject object : objects) object.inputBehaviors(oxygen);
     }
 
     public void cleanupObjects(Oxygen oxygen) throws OxygenException {
-        for (SceneObject object : objects) {
-            object.cleanupBehaviors(oxygen);
-        }
+        for (SceneObject object : objects) object.cleanupBehaviors(oxygen);
     }
 
     public Camera getCamera() {

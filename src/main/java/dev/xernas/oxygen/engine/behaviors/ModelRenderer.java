@@ -54,12 +54,14 @@ public class ModelRenderer implements Behavior {
         if (modelData == null) return;
         OGLModelData currentModelData = oglModel.getModelData();
 
-        renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
-        renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
-        renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
-        renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
-        renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
-        renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
+        if (renderer.isFirstOfBatch()) {
+            renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
+            renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
+            renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
+            renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
+            renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
+            renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
+        }
 
         renderer.drawElements(currentModelData);
     }

@@ -4,7 +4,12 @@ import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.model.IModel;
 import dev.xernas.oxygen.render.model.IModelData;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class OGLModel implements IModel {
+
+    private static final Map<Integer, OGLModel> modelIdMap = new HashMap<>();
 
     private final OGLModelData oglModelData;
 
@@ -15,6 +20,7 @@ public class OGLModel implements IModel {
     @Override
     public void init() throws OxygenException {
         oglModelData.init();
+        modelIdMap.put(oglModelData.getId(), this);
     }
 
     @Override
@@ -29,6 +35,10 @@ public class OGLModel implements IModel {
 
     public OGLModelData getModelData() {
         return oglModelData;
+    }
+
+    public static OGLModel byId(int id) {
+        return modelIdMap.get(id);
     }
 
     public static OGLModel transformModel(IModelData modelData) throws OxygenException {

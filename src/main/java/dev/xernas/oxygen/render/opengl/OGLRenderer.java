@@ -21,12 +21,13 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class OGLRenderer implements IRenderer {
 
-    private static final Map<Integer, List<SceneObject>> batches = new HashMap<>();
+    private static final Map<String, Map<Integer, List<SceneObject>>> batches = new HashMap<>();
 
     private final List<SceneObject> noModelSceneObjects = new ArrayList<>();
     private final Map<String, OGLShaderProgram> shaderPrograms = new HashMap<>();
 
     private String currentShaderProgramKey;
+    private boolean firstOfBatch = false;
 
     private final Window window;
 
@@ -41,26 +42,29 @@ public class OGLRenderer implements IRenderer {
         LightSource.lightIndex = 0;
         ModelRenderer.bindsPerFrame = 0;
         ModelRenderer.unbindsPerFrame = 0;
-        for (SceneObject sceneObject : noModelSceneObjects) {
-            renderSceneObject(sceneObject);
-        }
-        for (Integer modelData : batches.keySet()) {
-            List<SceneObject> sceneObjects = batches.get(modelData);
-            bindModel(OGLModelData.byId(modelData));
-            for (SceneObject sceneObject : sceneObjects) {
-                renderSceneObject(sceneObject);
-            }
-            unbindModel(OGLModelData.byId(modelData));
-        }
-    }
+        for (String shaderName : batches.keySet()) {
+            Map<Integer, List<SceneObject>> modelBatches = OGLRenderer.batches.get(shaderName);
+            currentShaderProgramKey = shaderName;
+            getCurrentShaderProgram().bind();
+            getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
+            getCurrentShaderProgram().setUniform("ambientLight", 0.15);
 
-    private void renderSceneObject(SceneObject sceneObject) throws OxygenException {
-        currentShaderProgramKey = sceneObject.getShaderName();
-        getCurrentShaderProgram().bind();
-        getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
-        getCurrentShaderProgram().setUniform("ambientLight", 0.15);
-        sceneObject.renderBehaviors(this);
-        getCurrentShaderProgram().unbind();
+            for (SceneObject sceneObject : noModelSceneObjects) {
+                sceneObject.renderBehaviors(this);
+            }
+
+            for (Integer modelData : modelBatches.keySet()) {
+                List<SceneObject> sceneObjects = modelBatches.get(modelData);
+                bindModel(OGLModel.byId(modelData).getModelData());
+                firstOfBatch = true;
+                for (SceneObject sceneObject : sceneObjects) {
+                    sceneObject.renderBehaviors(this);
+                    firstOfBatch = false;
+                }
+                unbindModel(OGLModel.byId(modelData).getModelData());
+            }
+            getCurrentShaderProgram().unbind();
+        }
     }
 
     public void bindModel(OGLModelData modelData) throws OpenGLException {
@@ -82,14 +86,13 @@ public class OGLRenderer implements IRenderer {
     }
 
     public static void addSceneObjectToBatch(SceneObject sceneObject, Integer modelData) {
-        List<SceneObject> batch = getBatch(modelData);
-        if (batch == null) batch = new ArrayList<>();
-        batch.add(sceneObject);
-        batches.put(modelData, batch);
-    }
-
-    public static List<SceneObject> getBatch(Integer modelDataId) {
-        return batches.get(modelDataId);
+        Map<Integer, List<SceneObject>> modelBatches = batches.get(sceneObject.getShaderName());
+        if (modelBatches == null) modelBatches = new HashMap<>();
+        List<SceneObject> modelBatch = modelBatches.get(modelData);
+        if (modelBatch == null) modelBatch = new ArrayList<>();
+        modelBatch.add(sceneObject);
+        modelBatches.put(modelData, modelBatch);
+        batches.put(sceneObject.getShaderName(), modelBatches);
     }
 
     @Override
@@ -111,6 +114,10 @@ public class OGLRenderer implements IRenderer {
         for (OGLShaderProgram shaderProgram : shaderPrograms) {
             this.shaderPrograms.put(shaderProgram.getShaderName(), shaderProgram);
         }
+    }
+
+    public boolean isFirstOfBatch() {
+        return firstOfBatch;
     }
 
     @Override
