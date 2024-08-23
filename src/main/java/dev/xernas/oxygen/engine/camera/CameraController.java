@@ -5,6 +5,7 @@ import dev.xernas.oxygen.engine.Behavior;
 import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.engine.input.Key;
+import dev.xernas.oxygen.engine.utils.GlobalUtilitaries;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.math.MathUtils;
 import org.joml.Vector3f;
@@ -28,13 +29,17 @@ public class CameraController implements Behavior {
 
     @Override
     public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
-        cameraTransform = parent.getBehavior(CameraTransform.class);
+        cameraTransform = GlobalUtilitaries.requireBehavior(parent.getBehavior(CameraTransform.class), "CameraController requires a CameraTransform behavior");
     }
 
     @Override
     public void update(Oxygen oxygen, SceneObject parent) {
         cameraTransform.move(direction);
         cameraTransform.rotate(rotation);
+        // Clamp the camera rotation
+        Vector3f rotation = cameraTransform.getRotation();
+        rotation.x = MathUtils.clamp(rotation.x, -90, 90);
+        cameraTransform.setRotation(rotation);
     }
 
     @Override
