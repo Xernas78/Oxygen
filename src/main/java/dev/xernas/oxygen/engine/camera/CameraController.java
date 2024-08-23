@@ -6,6 +6,7 @@ import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.engine.input.Key;
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.math.MathUtils;
 import org.joml.Vector3f;
 
 public class CameraController implements Behavior {
