@@ -67,21 +67,17 @@ public abstract class SceneObject {
     }
 
     public final void inputBehaviors(Oxygen oxygen) {
-        for (Behavior behavior : behaviors) {
-            behavior.input(oxygen, oxygen.getWindow().getInput());
-        }
+        for (Behavior behavior : behaviors) behavior.input(oxygen, oxygen.getWindow().getInput());
+
     }
 
     public final void renderBehaviors(OGLRenderer renderer) throws OxygenException {
-        for (Behavior behavior : behaviors) {
-            behavior.render(renderer, this);
-        }
+        for (Behavior behavior : behaviors) behavior.render(renderer, this);
+
     }
 
     public final void cleanupBehaviors(Oxygen oxygen) throws OxygenException {
-        for (Behavior behavior : behaviors) {
-            behavior.cleanup(oxygen, this);
-        }
+        for (Behavior behavior : behaviors) behavior.cleanup(oxygen, this);
     }
 
     public String getShaderName() {
