@@ -158,14 +158,13 @@ public class Oxygen {
 
     public void setScene(int index) throws OxygenException {
         if (index < 0 || index >= scenes.size()) {
-            LOGGER.warn("Scene index out of bounds");
+            LOGGER.warn("Scene does not exist");
             return;
         }
         getCurrentScene().cleanupObjects(this);
         currentSceneIndex = index;
         getCurrentScene().awakeObjects(this);
         getCurrentScene().startObjects(this);
-        getRenderer().loadSceneObjects(getCurrentScene().getObjects());
     }
 
     public static Scene getScene(int index) {
@@ -188,7 +187,7 @@ public class Oxygen {
         return getCurrentScene().getObjects(objectClass);
     }
 
-    public void stop() {
+    public static void stop() {
         running = false;
     }
 

@@ -1,5 +1,6 @@
 package dev.xernas.oxygen.logging;
 
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.exception.OxygenException;
 
 import java.io.PrintStream;
@@ -20,7 +21,7 @@ public class OLogger {
 
     public void fatal(OxygenException e) {
         log(Level.FATAL, e.getMessage(), System.err);
-        throw new RuntimeException(e);
+        Oxygen.stop();
     }
 
     public void warn(String message) {

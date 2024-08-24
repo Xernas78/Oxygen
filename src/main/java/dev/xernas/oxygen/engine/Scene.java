@@ -70,12 +70,13 @@ public class Scene {
     }
 
     public List<SceneObject> getObjects() {
-        return objects;
+        return new ArrayList<>(this.objects);
     }
 
     public <T> List<T> getObjects(Class<? extends SceneObject> objectClass) {
         List<T> objects = new ArrayList<>();
-        for (SceneObject object : this.objects) {
+        List<SceneObject> objectsList = getObjects();
+        for (SceneObject object : objectsList) {
             if (object.getClass().equals(objectClass)) {
                 objects.add((T) object);
             }
