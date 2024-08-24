@@ -172,6 +172,10 @@ public class Oxygen {
         return scenes.get(index);
     }
 
+    public static int getCurrentSceneIndex() {
+        return currentSceneIndex;
+    }
+
     public static Scene getCurrentScene() {
         return getScene(currentSceneIndex);
     }
