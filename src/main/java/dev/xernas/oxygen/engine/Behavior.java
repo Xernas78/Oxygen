@@ -5,9 +5,11 @@ import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 
-import java.util.Scanner;
-
 public interface Behavior {
+
+    default void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
+        // Do nothing
+    };
 
     void start(Oxygen oxygen, SceneObject parent) throws OxygenException;
 

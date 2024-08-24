@@ -82,7 +82,8 @@ public class Oxygen {
             if (debug) if (lib == Lib.OPENGL) GLUtil.setupDebugMessageCallback();
 
             if (scenes.isEmpty()) throw new OxygenException("Can't find any scene");
-            scenes.get(currentSceneIndex).startObjects(this);
+            getCurrentScene().awakeObjects(this);
+            getCurrentScene().startObjects(this);
 
             window.show();
 
@@ -162,7 +163,9 @@ public class Oxygen {
         }
         getCurrentScene().cleanupObjects(this);
         currentSceneIndex = index;
+        getCurrentScene().awakeObjects(this);
         getCurrentScene().startObjects(this);
+        getRenderer().loadSceneObjects(getCurrentScene().getObjects());
     }
 
     public static Scene getScene(int index) {

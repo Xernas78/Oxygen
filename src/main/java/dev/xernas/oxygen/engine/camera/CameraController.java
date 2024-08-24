@@ -28,8 +28,13 @@ public class CameraController implements Behavior {
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
         cameraTransform = GlobalUtilitaries.requireBehavior(parent.getBehavior(CameraTransform.class), "CameraController requires a CameraTransform behavior");
+    }
+
+    @Override
+    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+
     }
 
     @Override

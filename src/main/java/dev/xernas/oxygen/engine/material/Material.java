@@ -11,7 +11,7 @@ public class Material {
     public static Material DEFAULT = new Material(Color.decode("#f5deb3"));
     public static Material DEBUG = new Material(Color.GREEN, false);
 
-    private final String simpleTexturePath;
+    private final boolean textured;
     private final Path texturePath;
     private final Color baseColor;
     private final boolean illuminable;
@@ -55,17 +55,26 @@ public class Material {
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility) {
-        this.simpleTexturePath = texturePath;
+        this.textured = texturePath != null;
         Path fileTexturePath = resourceManager.getResourceAbsolutePath(resourceManager.getTexturesDir() + texturePath);
-        this.texturePath = fileTexturePath == null ? resourceManager.getResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath;
+        this.texturePath = textured ? (fileTexturePath == null ? resourceManager.getResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath) : null;
         this.baseColor = baseColor;
         this.illuminable = illuminable;
         this.reflectivity = reflectivity;
         this.reflectionVisibility = reflectionVisibility;
     }
 
-    public String getSimpleTexturePath() {
-        return simpleTexturePath;
+    public Material(Material material, boolean textured) {
+        this.textured = textured;
+        this.texturePath = textured ? material.texturePath : null;
+        this.baseColor = material.baseColor;
+        this.illuminable = material.illuminable;
+        this.reflectivity = material.reflectivity;
+        this.reflectionVisibility = material.reflectionVisibility;
+    }
+
+    public boolean isTextured() {
+        return textured;
     }
 
     public Path getTexturePath() {

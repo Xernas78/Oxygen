@@ -5,9 +5,7 @@ import dev.xernas.oxygen.engine.camera.Camera;
 import dev.xernas.oxygen.exception.OxygenException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class Scene {
 
@@ -24,16 +22,20 @@ public class Scene {
         return this;
     }
 
-    public void startObjects(Oxygen oxygen) throws OxygenException {
+    public void awakeObjects(Oxygen oxygen) throws OxygenException {
         boolean hasCamera = false;
         for (SceneObject object : objects) {
-            object.startBehaviors(oxygen);
+            object.awakeBehaviors(oxygen);
             if (object.getClass().equals(Camera.class)) {
                 hasCamera = true;
             }
         }
         if (!hasCamera) throw new OxygenException("Scene must have a camera");
         oxygen.getRenderer().loadSceneObjects(objects);
+    }
+
+    public void startObjects(Oxygen oxygen) throws OxygenException {
+        for (SceneObject object : objects) object.startBehaviors(oxygen);
     }
 
     public void updateObjects(Oxygen oxygen) throws OxygenException {

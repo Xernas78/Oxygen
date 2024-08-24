@@ -57,8 +57,13 @@ public class LightSource implements Behavior {
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
         transform = GlobalUtilitaries.requireBehavior(parent.getBehavior(Transform.class), "LightSource behavior require Transform behavior");
+    }
+
+    @Override
+    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+
     }
 
     @Override

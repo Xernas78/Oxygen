@@ -34,7 +34,7 @@ public class ModelRenderer implements Behavior {
     }
 
     @Override
-    public final void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public final void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
         if (Oxygen.getLib() == Lib.OPENGL) {
             modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial().getTexturePath());
             oglModel = OGLModel.transformModel(modelData);
@@ -42,6 +42,11 @@ public class ModelRenderer implements Behavior {
             modelData = new VulkanModelData(Oxygen.getVulkanModelIdCounter(), Collections.singletonList(new VulkanModelData.MeshData(model.getVertices(), model.getIndices())));
             Oxygen.incrementVulkanModelIdCounter();
         }
+    }
+
+    @Override
+    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+
     }
 
     @Override

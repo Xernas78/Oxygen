@@ -51,13 +51,7 @@ public class ObjFormat implements IFormat {
 
     @Override
     public Model toModel(Material material) {
-        Material newMaterial = material == null ? Material.DEFAULT : new Material(
-                resourceManager,
-                textured ? material.getSimpleTexturePath() : null,
-                material.getBaseColor(),
-                material.illuminable(),
-                material.getReflectivity(),
-                material.getReflectionVisibility());
+        Material newMaterial = material == null ? Material.DEFAULT : new Material(material, textured);
         return new Model(vertices, indices, texCoords, normals, newMaterial);
     }
 

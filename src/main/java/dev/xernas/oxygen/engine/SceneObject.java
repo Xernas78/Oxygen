@@ -8,7 +8,6 @@ import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.engine.model.Model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public abstract class SceneObject {
@@ -50,13 +49,17 @@ public abstract class SceneObject {
 
     public abstract List<Behavior> getBehaviors();
 
-    public final void startBehaviors(Oxygen oxygen) throws OxygenException {
+    public final void awakeBehaviors(Oxygen oxygen) throws OxygenException {
         behaviors.addAll(getBehaviors());
         behaviors.addAll(getDefaultBehaviors());
         removeDuplicateBehaviors();
         for (Behavior behavior : behaviors) {
-            behavior.start(oxygen, this);
+            behavior.awake(oxygen, this);
         }
+    }
+
+    public final void startBehaviors(Oxygen oxygen) throws OxygenException {
+        for (Behavior behavior : behaviors) behavior.start(oxygen, this);
     }
 
     public final void updateBehaviors(Oxygen oxygen) throws OxygenException {
@@ -110,6 +113,7 @@ public abstract class SceneObject {
 
     public static void instantiate(Oxygen oxygen, Scene scene, SceneObject object) throws OxygenException {
         scene.addObject(object);
+        object.awakeBehaviors(oxygen);
         object.startBehaviors(oxygen);
         oxygen.getRenderer().loadSceneObject(object);
     }
