@@ -47,7 +47,6 @@ public class OGLRenderer implements IRenderer {
             currentShaderProgramKey = shaderName;
             getCurrentShaderProgram().bind();
             getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
-            getCurrentShaderProgram().setUniform("ambientLight", 0.15);
 
             for (SceneObject sceneObject : noModelSceneObjects) {
                 sceneObject.renderBehaviors(this);

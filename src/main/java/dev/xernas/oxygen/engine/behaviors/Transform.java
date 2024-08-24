@@ -5,6 +5,7 @@ import dev.xernas.oxygen.engine.Behavior;
 import dev.xernas.oxygen.engine.SceneObject;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.math.MathUtils;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.render.utils.TransformUtils;
 import org.joml.Vector3f;

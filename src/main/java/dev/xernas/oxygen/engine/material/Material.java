@@ -13,51 +13,81 @@ public class Material {
 
     private final boolean textured;
     private final Path texturePath;
+    private final Integer textureTiles;
     private final Color baseColor;
     private final boolean illuminable;
     private final float reflectivity;
     private final float reflectionVisibility;
 
     public Material(ResourceManager resourceManager, String texturePath) {
-        this(resourceManager, texturePath, Color.WHITE);
+        this(resourceManager, texturePath, 1, Color.WHITE);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles) {
+        this(resourceManager, texturePath, textureTiles, Color.WHITE);
     }
 
     public Material(Color baseColor) {
-        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor);
+        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, 1, baseColor);
     }
 
     public Material(Color baseColor, boolean illuminable) {
-        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor, illuminable, 0.5f, 1);
+        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, 1, baseColor, illuminable, 0.5f, 1);
     }
 
     public Material(Color baseColor, float shininess) {
-        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, baseColor, true, shininess, shininess * 15);
+        this(Oxygen.OXYGEN_RESOURCE_MANAGER, null, 1, baseColor, true, shininess, shininess * 7.5f);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor) {
-        this(resourceManager, texturePath, baseColor, true, 0.5f, 1);
+        this(resourceManager, texturePath, 1, baseColor, true, 0.5f, 1);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor) {
+        this(resourceManager, texturePath, textureTiles, baseColor, true, 0.5f, 1);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable) {
-        this(resourceManager, texturePath, baseColor, illuminable, 0.5f, 1);
+        this(resourceManager, texturePath, 1, baseColor, illuminable, 0.5f, 1);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor, boolean illuminable) {
+        this(resourceManager, texturePath, textureTiles, baseColor, illuminable, 0.5f, 1);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, float shininess) {
-        this(resourceManager, texturePath, baseColor, true, shininess, shininess * 15);
+        this(resourceManager, texturePath, 1, baseColor, true, shininess, shininess * 7.5f);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor, float shininess) {
+        this(resourceManager, texturePath, textureTiles, baseColor, true, shininess, shininess * 7.5f);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, float reflectivity, float reflectionVisibility) {
-        this(resourceManager, texturePath, baseColor, true, reflectivity, reflectionVisibility);
+        this(resourceManager, texturePath, 1, baseColor, true, reflectivity, reflectionVisibility);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor, float reflectivity, float reflectionVisibility) {
+        this(resourceManager, texturePath, textureTiles, baseColor, true, reflectivity, reflectionVisibility);
     }
 
     public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float shininess) {
-        this(resourceManager, texturePath, baseColor, illuminable, shininess, shininess * 7.5f);
+        this(resourceManager, texturePath, 1, baseColor, illuminable, shininess, shininess * 7.5f);
     }
 
-    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility) {
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor, boolean illuminable, float shininess) {
+        this(resourceManager, texturePath, textureTiles, baseColor, illuminable, shininess, shininess * 7.5f);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility)  {
+        this(resourceManager, texturePath, 1, baseColor, illuminable, reflectivity, reflectionVisibility);
+    }
+
+    public Material(ResourceManager resourceManager, String texturePath, Integer textureTiles, Color baseColor, boolean illuminable, float reflectivity, float reflectionVisibility) {
         this.textured = texturePath != null;
         Path fileTexturePath = resourceManager.getResourceAbsolutePath(resourceManager.getTexturesDir() + texturePath);
         this.texturePath = textured ? (fileTexturePath == null ? resourceManager.getResourceAbsolutePath(Oxygen.OXYGEN_RESOURCE_MANAGER.getTexturesDir() + "error.png") : fileTexturePath) : null;
+        this.textureTiles = textureTiles;
         this.baseColor = baseColor;
         this.illuminable = illuminable;
         this.reflectivity = reflectivity;
@@ -66,6 +96,7 @@ public class Material {
 
     public Material(Material material, boolean textured) {
         this.textured = textured;
+        this.textureTiles = textured ? material.textureTiles : 1;
         this.texturePath = textured ? material.texturePath : null;
         this.baseColor = material.baseColor;
         this.illuminable = material.illuminable;
@@ -79,6 +110,10 @@ public class Material {
 
     public Path getTexturePath() {
         return texturePath;
+    }
+
+    public Integer getTextureTiles() {
+        return textureTiles;
     }
 
     public Color getBaseColor() {

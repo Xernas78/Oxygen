@@ -10,6 +10,8 @@ uniform mat4 viewMatrix;
 
 uniform vec3 lightPos[10];
 
+uniform int numTextureTiles;
+
 out vec3 pixelPos;
 out vec2 texCoordFrag;
 
@@ -22,7 +24,7 @@ void main()
     vec4 worldPos = transformMatrix * vec4(pos, 1);
     gl_Position = projectionMatrix * viewMatrix * worldPos;
     pixelPos = pos;
-    texCoordFrag = texCoordIn;
+    texCoordFrag = texCoordIn * numTextureTiles;
 
     surfaceNormal = (transformMatrix * vec4(normal, 0.0)).xyz;
     for (int i = 0; i < 10; i++)

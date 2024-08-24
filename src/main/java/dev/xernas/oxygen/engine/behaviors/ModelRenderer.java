@@ -62,6 +62,7 @@ public class ModelRenderer implements Behavior {
         if (renderer.isFirstOfBatch()) {
             renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
             renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
+            renderer.getCurrentShaderProgram().setUniform("numTextureTiles", model.getMaterial().getTextureTiles());
             renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
             renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
             renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());

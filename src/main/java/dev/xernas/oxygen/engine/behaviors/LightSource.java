@@ -80,5 +80,6 @@ public class LightSource implements Behavior {
             renderer.getCurrentShaderProgram().setUniform("specularColor[" + lightIndex + "]", specularHighlight);
             lightIndex++;
         }
+        renderer.getCurrentShaderProgram().setUniform("ambientLight", 0.15);
     }
 }
