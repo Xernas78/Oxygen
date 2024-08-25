@@ -14,10 +14,6 @@ import dev.xernas.oxygen.render.vulkan.model.VulkanModelData;
 
 import java.util.*;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-
 public class ModelRenderer implements Behavior {
 
     private final Model model;
@@ -67,9 +63,13 @@ public class ModelRenderer implements Behavior {
             renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
             renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
             renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
+
+            if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
         }
 
         renderer.drawElements(currentModelData);
+
+        if (renderer.isFirstOfBatch()) if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
     }
 
     @Override

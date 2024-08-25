@@ -129,8 +129,23 @@ public class OGLRenderer implements IRenderer {
         glCullFace(GL_BACK);
     }
 
+    public void enableBackfaceCulling() {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+    }
+
+    public void disableBackfaceCulling() {
+        glDisable(GL_CULL_FACE);
+    }
+
+    public void clear() {
+        noModelSceneObjects.clear();
+        batches.clear();
+    }
+
     @Override
     public void cleanup() throws OxygenException {
+        clear();
         for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.cleanup();
     }
 

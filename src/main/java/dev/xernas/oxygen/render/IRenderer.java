@@ -19,4 +19,6 @@ public interface IRenderer extends IOxygenLogic {
 
     void loadSceneObject(SceneObject sceneObject) throws OxygenException;
 
+    void clear();
+
 }

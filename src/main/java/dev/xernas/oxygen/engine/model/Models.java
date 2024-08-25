@@ -4,16 +4,16 @@ import dev.xernas.oxygen.engine.material.Material;
 
 public class Models {
 
-    private static Model generateCube() {
+    private static Model generateCuboid(int width, int height, int depth) {
         float[] vertices = new float[] {
-                -0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, 0.5f,
-                0.5f, -0.5f, 0.5f,
-                0.5f, 0.5f, 0.5f,
-                -0.5f, 0.5f, -0.5f,
-                -0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                0.5f, 0.5f, -0.5f
+                -width, height, depth,
+                -width, -height, depth,
+                width, -height, depth,
+                width, height, depth,
+                -width, height, -depth,
+                -width, -height, -depth,
+                width, -height, -depth,
+                width, height, -depth
         };
         int[] indices = new int[] {
                 0, 1, 3,
@@ -61,6 +61,7 @@ public class Models {
                 0, -1, 0,
                 0, -1, 0
         };
+
         float[] texCoords = new float[] {
                 0, 0,
                 0, 1,
@@ -71,10 +72,38 @@ public class Models {
                 1, 1,
                 1, 0
         };
+
         return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
     }
 
-    private static Model generatePlane(int vertexCount, int size) {
+    private static Model generatePlane(int width, int height) {
+//        float[] vertices = new float[] {
+//                -width, 0, height,
+//                -width, 0, -height,
+//                width, 0, -height,
+//                width, 0, height
+//        };
+//        int[] indices = new int[] {
+//                0, 1, 3,
+//                3, 1, 2
+//        };
+//        float[] normals = new float[] {
+//                0, 1, 0,
+//                0, 1, 0,
+//                0, 1, 0,
+//                0, 1, 0
+//        };
+//        float[] texCoords = new float[] {
+//                0, 0,
+//                0, 1,
+//                1, 1,
+//                1, 0
+//        };
+//        return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
+        return generateSubdividedPlane(2, width, height);
+    }
+
+    private static Model generateSubdividedPlane(int vertexCount, int width, int height) {
         int count = vertexCount * vertexCount;
         float[] vertices = new float[count * 3];
         float[] normals = new float[count * 3];
@@ -83,9 +112,9 @@ public class Models {
         int vertexPointer = 0;
         for(int i=0;i<vertexCount;i++){
             for(int j=0;j<vertexCount;j++){
-                vertices[vertexPointer*3] = (float)j/((float)vertexCount - 1) * size;
+                vertices[vertexPointer*3] = (float)j/((float)vertexCount - 1) * width;
                 vertices[vertexPointer*3+1] = 0;
-                vertices[vertexPointer*3+2] = (float)i/((float)vertexCount - 1) * size;
+                vertices[vertexPointer*3+2] = (float)i/((float)vertexCount - 1) * height;
                 normals[vertexPointer*3] = 0;
                 normals[vertexPointer*3+1] = 1;
                 normals[vertexPointer*3+2] = 0;
@@ -112,11 +141,26 @@ public class Models {
         return new Model(vertices, indices, normals, textureCoords, Material.DEFAULT);
     }
 
-    public static Model getCube() {
-        return generateCube().copy();
+    public static Model getCuboid(int width, int height, int depth) {
+        return generateCuboid(width, height, depth).copy();
     }
 
-    public static Model getPlane(int vertexCount, int size) {
-        return generatePlane(vertexCount, size).copy();
+    public static Model getCube(int size) {
+        return generateCuboid(size, size, size).copy();
+    }
+
+    public static Model getSubdividedPlane(int size, int vertexCount) {
+        if (vertexCount < 2) {
+            return generatePlane(size, size).copy();
+        }
+        return generateSubdividedPlane(vertexCount, size, size).copy();
+    }
+
+    public static Model getPlane(int width, int height) {
+        return generatePlane(width, height);
+    }
+
+    public static Model getPlane(int size) {
+        return getPlane(size, size);
     }
 }

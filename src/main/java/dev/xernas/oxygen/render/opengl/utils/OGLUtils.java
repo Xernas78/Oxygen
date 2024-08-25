@@ -1,14 +1,12 @@
 package dev.xernas.oxygen.render.opengl.utils;
 
-import dev.xernas.oxygen.Oxygen;
-import dev.xernas.oxygen.engine.resource.img.Image;
+import dev.xernas.oxygen.engine.resource.formats.Image;
+import dev.xernas.oxygen.engine.utils.GlobalUtilitaries;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -22,18 +20,13 @@ import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 
 public class OGLUtils {
 
-    public static int requireNotEquals(int obj, int notEqual, String message) throws OpenGLException {
-        if (obj == notEqual) throw new OpenGLException(message);
-        return obj;
-    }
-
     public static int loadTexture(Path textPath, List<Integer> textures) throws OxygenException {
         Image image = loadImage(textPath);
         ByteBuffer buffer = image.getData();
         int width = image.getWidth();
         int height = image.getHeight();
 
-        int id = OGLUtils.requireNotEquals(glGenTextures(), 0, "Error creating texture");
+        int id = GlobalUtilitaries.requireNotEquals(glGenTextures(), 0, "Error creating texture");
         textures.add(id);
         glBindTexture(GL_TEXTURE_2D, id);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

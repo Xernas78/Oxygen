@@ -1,4 +1,4 @@
-package dev.xernas.oxygen.engine.resource.img;
+package dev.xernas.oxygen.engine.resource.formats;
 
 import java.nio.ByteBuffer;
 
@@ -26,4 +26,10 @@ public class Image {
         return data;
     }
 
+    public static Image fromByteArray(int width, int height, byte[] data) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return new Image(width, height, buffer);
+    }
 }

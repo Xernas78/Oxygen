@@ -25,6 +25,11 @@ public class EmptyRenderer implements IRenderer {
     }
 
     @Override
+    public void clear() {
+
+    }
+
+    @Override
     public void init() throws OxygenException {
 
     }

@@ -2,6 +2,7 @@ package dev.xernas.oxygen.render.opengl.shader;
 
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
+import dev.xernas.oxygen.engine.utils.GlobalUtilitaries;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.IOGLObject;
@@ -54,12 +55,12 @@ public class OGLShaderProgram implements IOGLObject {
 
     @Override
     public void init() throws OxygenException {
-        int vertexShaderId = OGLUtils.requireNotEquals(glCreateShader(GL_VERTEX_SHADER), 0, "Error creating vertex shader");
-        int fragmentShaderId = OGLUtils.requireNotEquals(glCreateShader(GL_FRAGMENT_SHADER), 0, "Error creating fragment shader");
+        int vertexShaderId = GlobalUtilitaries.requireNotEquals(glCreateShader(GL_VERTEX_SHADER), 0, "Error creating vertex shader");
+        int fragmentShaderId = GlobalUtilitaries.requireNotEquals(glCreateShader(GL_FRAGMENT_SHADER), 0, "Error creating fragment shader");
         String vertexShaderCode = readShader(useDefaultVertex ? "default" : shaderName, vertexShader);
         String fragmentShaderCode = readShader(shaderName, fragmentShader);
 
-        programId = OGLUtils.requireNotEquals(glCreateProgram(), 0, "Error creating shader program");
+        programId = GlobalUtilitaries.requireNotEquals(glCreateProgram(), 0, "Error creating shader program");
 
         glShaderSource(vertexShaderId, vertexShaderCode);
         glCompileShader(vertexShaderId);

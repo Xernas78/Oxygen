@@ -53,7 +53,7 @@ void main()
         textured = vec4(baseColor, 1);
     }
     if(!illuminable) {
-        totalLighting = baseColor;
+        totalLighting = vec3(1);
     }
     uFragColor = vec4(totalLighting, 1.0) * textured;
 }

@@ -30,4 +30,9 @@ public class GlobalUtilitaries {
         }
     }
 
+    public static int requireNotEquals(int obj, int notEqual, String message) throws OxygenException {
+        if (obj == notEqual) throw new OxygenException(message);
+        return obj;
+    }
+
 }

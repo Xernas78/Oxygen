@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public enum Key {
 
+    KEY_UNKNOWN(GLFW_KEY_UNKNOWN, GLFW_KEY_UNKNOWN),
     KEY_A(GLFW_KEY_A, GLFW_KEY_Q),
     KEY_Z(GLFW_KEY_Z, GLFW_KEY_W),
     KEY_E(GLFW_KEY_E, GLFW_KEY_E),
@@ -64,6 +65,8 @@ public enum Key {
     KEY_LEFT_SHIFT(GLFW_KEY_LEFT_SHIFT, GLFW_KEY_LEFT_SHIFT),
     KEY_RIGHT_SHIFT(GLFW_KEY_RIGHT_SHIFT, GLFW_KEY_RIGHT_SHIFT),
     KEY_SPACE(GLFW_KEY_SPACE, GLFW_KEY_SPACE),
+    KEY_LEFT_CONTROL(GLFW_KEY_LEFT_CONTROL, GLFW_KEY_LEFT_CONTROL),
+    KEY_RIGHT_CONTROL(GLFW_KEY_RIGHT_CONTROL, GLFW_KEY_RIGHT_CONTROL),
 
     MOUSE_LEFT(GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_LEFT),
     MOUSE_RIGHT(GLFW_MOUSE_BUTTON_RIGHT, GLFW_MOUSE_BUTTON_RIGHT),
@@ -85,7 +88,7 @@ public enum Key {
                 return key;
             }
         }
-        return null;
+        return Key.KEY_UNKNOWN;
     }
 
     public int getAzerty() {

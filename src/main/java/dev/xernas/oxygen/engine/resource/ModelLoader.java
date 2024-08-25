@@ -1,6 +1,8 @@
 package dev.xernas.oxygen.engine.resource;
 
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.resource.loaders.OBJLoader;
+import dev.xernas.oxygen.exception.OxygenException;
 
 public class ModelLoader {
 

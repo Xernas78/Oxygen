@@ -162,6 +162,7 @@ public class Oxygen {
             return;
         }
         getCurrentScene().cleanupObjects(this);
+        renderer.clear();
         currentSceneIndex = index;
         getCurrentScene().awakeObjects(this);
         getCurrentScene().startObjects(this);

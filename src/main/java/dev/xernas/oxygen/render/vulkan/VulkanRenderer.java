@@ -106,4 +106,9 @@ public class VulkanRenderer implements IRenderer {
         if (modelRenderer != null) vulkanModels.add(VulkanModel.transformModel(modelRenderer.getModelData(), commandPool, graphicsQueue));
     }
 
+    @Override
+    public void clear() {
+
+    }
+
 }

@@ -84,7 +84,7 @@ public class OBJLoader implements ILoader {
         }
 
         int[] indicesArray = indices.stream().mapToInt(Integer::intValue).toArray();
-        return new ObjFormat(resourceManager, verticesArray, indicesArray, normalsArray, texCoordsArray, faces.size(), textured);
+        return new ObjFormat(verticesArray, indicesArray, normalsArray, texCoordsArray, faces.size(), textured);
     }
 
     private void processVertex(Vector3i face, List<Integer> indices, List<Vector2f> texCoords, List<Vector3f> normals, float[] texCoordsArray, float[] normalsArray) {

@@ -3,7 +3,7 @@ package dev.xernas.oxygen;
 import dev.xernas.oxygen.engine.input.Action;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.engine.input.Key;
-import dev.xernas.oxygen.engine.resource.img.Image;
+import dev.xernas.oxygen.engine.resource.formats.Image;
 import dev.xernas.oxygen.exception.GLFWException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
@@ -118,14 +118,10 @@ public class Window implements IOxygenLogic {
         glfwSetFramebufferSizeCallback(windowHandle, (window, w, h) -> resize(w, h));
 
         // Keyboard
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-            input.setKeyAction(Key.fromCode(key, input.isAzerty()), Action.fromCode(action));
-        });
+        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> input.setKeyAction(Key.fromCode(key, input.isAzerty()), Action.fromCode(action)));
 
         // Mouse
-        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
-            input.setKeyAction(Key.fromCode(button, input.isAzerty()), Action.fromCode(action));
-        });
+        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> input.setKeyAction(Key.fromCode(button, input.isAzerty()), Action.fromCode(action)));
 
 //        glfwSetScrollCallback(windowHandle, (window, xoffset, yoffset) -> input.getOnScroll().accept(yoffset));
 

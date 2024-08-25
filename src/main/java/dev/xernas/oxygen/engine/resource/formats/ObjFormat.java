@@ -7,7 +7,6 @@ import dev.xernas.oxygen.engine.model.Model;
 
 public class ObjFormat implements IFormat {
 
-    private final ResourceManager resourceManager;
     private final float[] vertices;
     private final int[] indices;
     private final float[] texCoords;
@@ -15,8 +14,7 @@ public class ObjFormat implements IFormat {
     private final int faceCount;
     private final boolean textured;
 
-    public ObjFormat(ResourceManager resourceManager, float[] vertices, int[] indices, float[] texCoords, float[] normals, int faceCount, boolean textured) {
-        this.resourceManager = resourceManager;
+    public ObjFormat(float[] vertices, int[] indices, float[] texCoords, float[] normals, int faceCount, boolean textured) {
         this.vertices = vertices;
         this.indices = indices;
         this.texCoords = texCoords;
@@ -53,11 +51,6 @@ public class ObjFormat implements IFormat {
     public Model toModel(Material material) {
         Material newMaterial = material == null ? Material.DEFAULT : new Material(material, textured);
         return new Model(vertices, indices, texCoords, normals, newMaterial);
-    }
-
-    @Override
-    public Model toModel() {
-        return new Model(vertices, indices, texCoords, normals, null);
     }
 
 }
