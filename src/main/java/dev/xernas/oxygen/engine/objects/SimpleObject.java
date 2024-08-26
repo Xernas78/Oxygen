@@ -14,10 +14,11 @@ public class SimpleObject extends SceneObject {
 
     private final List<Behavior> behaviors = new ArrayList<>();
 
-    public SimpleObject(Transform transform, Model model, Material material, Behavior... behaviors) {
+    public SimpleObject(Transform transform, Model model, Material material, String shader, Behavior... behaviors) {
         setTransform(transform);
         model.setMaterial(material);
         setModel(model);
+        setShader(shader);
         this.behaviors.addAll(Arrays.asList(behaviors));
     }
 

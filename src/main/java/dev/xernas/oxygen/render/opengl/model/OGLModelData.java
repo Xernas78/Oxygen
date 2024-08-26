@@ -7,6 +7,7 @@ import dev.xernas.oxygen.render.opengl.IOGLObject;
 import dev.xernas.oxygen.render.opengl.utils.BufferUtils;
 import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
 import dev.xernas.oxygen.render.model.IModelData;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
@@ -149,6 +150,11 @@ public class OGLModelData implements IModelData {
         int comparisonId = modelData == null ? -1 : modelData.id;
         int comparisonTextureId = modelData == null ? -1 : modelData.textureId;
         return id == comparisonId && textureId == comparisonTextureId;
+    }
+
+    public static void reset() {
+        uniqueIdCounter = 0;
+        previousModel = null;
     }
 
     public static class VAO implements IOGLObject {

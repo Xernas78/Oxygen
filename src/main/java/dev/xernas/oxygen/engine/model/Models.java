@@ -141,6 +141,64 @@ public class Models {
         return new Model(vertices, indices, normals, textureCoords, Material.DEFAULT);
     }
 
+    private static Model generateSphere(int resolution, int radius) {
+        int vertexCount = (resolution + 1) * (resolution + 1);
+        float[] vertices = new float[vertexCount * 3];
+        float[] normals = new float[vertexCount * 3];
+        float[] texCoords = new float[vertexCount * 2];
+        int[] indices = new int[6 * resolution * resolution];
+
+        int vertexPointer = 0;
+        for (int lat = 0; lat <= resolution; lat++) {
+            float theta = (float) (lat * Math.PI / resolution);  // Latitude angle
+            float sinTheta = (float) Math.sin(theta);
+            float cosTheta = (float) Math.cos(theta);
+
+            for (int lon = 0; lon <= resolution; lon++) {
+                float phi = (float) (lon * 2 * Math.PI / resolution);  // Longitude angle
+                float sinPhi = (float) Math.sin(phi);
+                float cosPhi = (float) Math.cos(phi);
+
+                float x = cosPhi * sinTheta;
+                float y = cosTheta;
+                float z = sinPhi * sinTheta;
+                float u = 1 - (lon / (float) resolution);
+                float v = 1 - (lat / (float) resolution);
+
+                vertices[vertexPointer * 3] = radius * x;
+                vertices[vertexPointer * 3 + 1] = radius * y;
+                vertices[vertexPointer * 3 + 2] = radius * z;
+
+                normals[vertexPointer * 3] = x;
+                normals[vertexPointer * 3 + 1] = y;
+                normals[vertexPointer * 3 + 2] = z;
+
+                texCoords[vertexPointer * 2] = u;
+                texCoords[vertexPointer * 2 + 1] = v;
+
+                vertexPointer++;
+            }
+        }
+
+        int indexPointer = 0;
+        for (int lat = 0; lat < resolution; lat++) {
+            for (int lon = 0; lon < resolution; lon++) {
+                int first = (lat * (resolution + 1)) + lon;
+                int second = first + resolution + 1;
+
+                indices[indexPointer++] = first;
+                indices[indexPointer++] = second;
+                indices[indexPointer++] = first + 1;
+
+                indices[indexPointer++] = second;
+                indices[indexPointer++] = second + 1;
+                indices[indexPointer++] = first + 1;
+            }
+        }
+
+        return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
+    }
+
     public static Model getCuboid(int width, int height, int depth) {
         return generateCuboid(width, height, depth).copy();
     }
@@ -157,10 +215,14 @@ public class Models {
     }
 
     public static Model getPlane(int width, int height) {
-        return generatePlane(width, height);
+        return generatePlane(width, height).copy();
     }
 
     public static Model getPlane(int size) {
         return getPlane(size, size);
+    }
+
+    public static Model getSphere(int resolution, int radius) {
+        return generateSphere(resolution, radius).copy();
     }
 }

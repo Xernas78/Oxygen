@@ -8,6 +8,7 @@ import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.logging.OLogger;
 import dev.xernas.oxygen.render.IRenderer;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
+import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 import dev.xernas.oxygen.render.utils.EmptyRenderer;
 import dev.xernas.oxygen.render.utils.Lib;
 import dev.xernas.oxygen.render.vulkan.VulkanRenderer;
@@ -44,7 +45,7 @@ public class Oxygen {
     private static boolean running = false;
     private static boolean inSecond = false;
     private static int fps;
-    private static int frameCount;
+    private static int frames;
     private static int deltaTime;
     private static Lib lib;
     private static int currentSceneIndex = 0;
@@ -97,14 +98,12 @@ public class Oxygen {
 
     private void loop() throws OxygenException {
         running = true;
-        int frames = 0;
         long frameCounter = 0;
         long lastTime = System.nanoTime();
         float unprocessedTime = 0;
 
         while (running) {
             boolean render = false;
-            frameCount = 0;
             inSecond = false;
             long startTime = System.nanoTime();
             long passedTime = startTime - lastTime;
@@ -138,7 +137,6 @@ public class Oxygen {
 
             if (render) {
                 renderer.render();
-                frameCount++;
                 frames++;
             }
         }
@@ -163,6 +161,7 @@ public class Oxygen {
         }
         getCurrentScene().cleanupObjects(this);
         renderer.clear();
+        OGLModelData.reset();
         currentSceneIndex = index;
         getCurrentScene().awakeObjects(this);
         getCurrentScene().startObjects(this);
@@ -208,8 +207,8 @@ public class Oxygen {
         Oxygen.fps = fps;
     }
 
-    public static int getFrameCount() {
-        return frameCount;
+    public static int getFrames() {
+        return frames;
     }
 
     public static int getDeltaTime() {
