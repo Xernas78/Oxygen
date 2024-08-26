@@ -87,10 +87,12 @@ public class OGLModelData implements IModelData {
     public void cleanup() throws OxygenException {
         vao.cleanup();
         for (int texture : textures) glDeleteTextures(texture);
-        if (previousModel.verticesBuffer != verticesBuffer) MemoryUtil.memFree(verticesBuffer);
-        if (previousModel.indicesBuffer != indicesBuffer) MemoryUtil.memFree(indicesBuffer);
-        if (previousModel.textureCoordsBuffer != textureCoordsBuffer) if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
-        if (previousModel.normalsBuffer != normalsBuffer) if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
+        if (Objects.nonNull(previousModel)) {
+            if (previousModel.verticesBuffer != verticesBuffer) MemoryUtil.memFree(verticesBuffer);
+            if (previousModel.indicesBuffer != indicesBuffer) MemoryUtil.memFree(indicesBuffer);
+            if (previousModel.textureCoordsBuffer != textureCoordsBuffer) if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
+            if (previousModel.normalsBuffer != normalsBuffer) if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
+        }
     }
 
     public void bind() throws OpenGLException {

@@ -22,6 +22,11 @@ public class Scene {
         return this;
     }
 
+    public void load(Oxygen oxygen) throws OxygenException {
+        awakeObjects(oxygen);
+        startObjects(oxygen);
+    }
+
     public void awakeObjects(Oxygen oxygen) throws OxygenException {
         boolean hasCamera = false;
         for (SceneObject object : objects) {
