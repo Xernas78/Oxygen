@@ -1,10 +1,8 @@
 package dev.xernas.oxygen.engine.utils;
 
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.exception.OxygenException;
-
-import java.util.function.Consumer;
 
 public class GlobalUtilitaries {
 
@@ -19,7 +17,7 @@ public class GlobalUtilitaries {
         }
     }
 
-    public static <T> T requireObject(SceneObject object, String error) throws OxygenException {
+    public static <T> T requireObject(SceneEntity object, String error) throws OxygenException {
         if (object == null) {
             throw new OxygenException(error);
         }

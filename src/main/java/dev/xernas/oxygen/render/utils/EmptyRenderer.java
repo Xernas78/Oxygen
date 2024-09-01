@@ -1,6 +1,6 @@
 package dev.xernas.oxygen.render.utils;
 
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
 
@@ -15,12 +15,12 @@ public class EmptyRenderer implements IRenderer {
     }
 
     @Override
-    public void loadSceneObjects(List<SceneObject> sceneObjects) throws OxygenException {
+    public void loadSceneObjects(List<SceneEntity> sceneEntities) throws OxygenException {
 
     }
 
     @Override
-    public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
+    public void loadSceneObject(SceneEntity sceneEntity) throws OxygenException {
 
     }
 

@@ -132,6 +132,10 @@ public class OGLShaderProgram implements IOGLObject {
         uniform.setValue(value);
     }
 
+    public boolean hasUniform(String name) {
+        return uniforms.containsKey(name);
+    }
+
     private String readShader(String shaderName, String name) throws OxygenException {
         Path filePath = resourceManager.getResourcePath(resourceManager.getShadersDir() + shaderName + "/" + name);
         if (!Files.exists(filePath)) {

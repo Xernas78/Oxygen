@@ -2,7 +2,7 @@ package dev.xernas.oxygen.engine.camera;
 
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.input.Input;
 import dev.xernas.oxygen.engine.input.Key;
 import dev.xernas.oxygen.engine.utils.GlobalUtilitaries;
@@ -28,17 +28,17 @@ public class CameraController implements Behavior {
     }
 
     @Override
-    public void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void awake(Oxygen oxygen, SceneEntity parent) throws OxygenException {
         cameraTransform = GlobalUtilitaries.requireBehavior(parent.getBehavior(CameraTransform.class), "CameraController requires a CameraTransform behavior");
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void start(Oxygen oxygen, SceneEntity parent) throws OxygenException {
 
     }
 
     @Override
-    public void update(Oxygen oxygen, SceneObject parent) {
+    public void update(Oxygen oxygen, SceneEntity parent) {
         cameraTransform.move(direction);
         cameraTransform.rotate(rotation);
         // Clamp the camera rotation

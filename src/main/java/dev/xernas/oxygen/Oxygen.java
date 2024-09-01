@@ -1,7 +1,7 @@
 package dev.xernas.oxygen;
 
 import dev.xernas.oxygen.engine.Scene;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
 import dev.xernas.oxygen.exception.GLFWException;
 import dev.xernas.oxygen.exception.OxygenException;
@@ -169,6 +169,10 @@ public class Oxygen {
         return scenes.get(index);
     }
 
+    public static int getNumberOfScenes() {
+        return scenes.size();
+    }
+
     public static int getCurrentSceneIndex() {
         return currentSceneIndex;
     }
@@ -177,11 +181,11 @@ public class Oxygen {
         return getScene(currentSceneIndex);
     }
 
-    public static <T> T getFirstObject(Class<? extends SceneObject> objectClass) {
+    public static <T> T getFirstObject(Class<? extends SceneEntity> objectClass) {
         return getCurrentScene().getFirstObject(objectClass);
     }
 
-    public static <T> List<T> getObjects(Class<? extends SceneObject> objectClass) {
+    public static <T> List<T> getObjects(Class<? extends SceneEntity> objectClass) {
         return getCurrentScene().getObjects(objectClass);
     }
 

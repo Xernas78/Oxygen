@@ -33,7 +33,6 @@ public class TransformUtils {
         return viewMatrix;
     }
 
-    //TODO Camera params
     public static Matrix4f createProjectionMatrix(Window window) {
         Camera camera = Oxygen.getCurrentScene().getCamera();
         return new Matrix4f().identity()
@@ -43,6 +42,28 @@ public class TransformUtils {
                         camera.getzNear(),
                         camera.getzFar()
                 );
+    }
+
+    public static Matrix4f createOrthoMatrix(Window window) {
+        float aspectRatio = (float) window.getWidth() / window.getHeight();
+        float scale = 1.0f; // Adjust this if you want to zoom in/out
+
+        float left, right, bottom, top;
+        if (aspectRatio >= 1.0f) {
+            // Wider than tall
+            left = -scale * aspectRatio;
+            right = scale * aspectRatio;
+            bottom = -scale;
+            top = scale;
+        } else {
+            // Taller than wide
+            left = -scale;
+            right = scale;
+            bottom = -scale / aspectRatio;
+            top = scale / aspectRatio;
+        }
+
+        return new Matrix4f().identity().ortho(left, right, bottom, top, -1.0f, 1.0f);
     }
 
 }

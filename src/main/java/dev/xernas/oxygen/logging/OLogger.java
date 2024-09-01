@@ -40,12 +40,13 @@ public class OLogger {
         info(message.replace("{}", obj.toString()));
     }
 
-    public void debug(String message) {
+    public void debug(String message, boolean second) {
+        if (second) if (!Oxygen.isInSecond()) return;
         log(Level.DEBUG, message, System.out);
     }
 
-    public void debug(String message, Object obj) {
-        debug(message.replace("{}", obj == null ? "null" : obj.toString()));
+    public void debug(String message, Object obj, boolean second) {
+        debug(message.replace("{}", obj == null ? "null" : obj.toString()), second);
     }
 
     public void debugList(List<?> list, String message) {
@@ -53,7 +54,7 @@ public class OLogger {
         for (Object obj : list) {
             builder.append(obj).append(", ");
         }
-        debug(message.replace("{}", builder.toString()));
+        debug(message.replace("{}", builder.toString()), true);
     }
 
     public void debugMap(Map<?, ?> map, String message) {
@@ -61,7 +62,7 @@ public class OLogger {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
         }
-        debug(message.replace("{}", builder.toString().isEmpty() ? "Empty" : builder.toString()));
+        debug(message.replace("{}", builder.toString().isEmpty() ? "Empty" : builder.toString()), true);
     }
 
 }

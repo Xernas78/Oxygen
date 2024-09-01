@@ -1,5 +1,6 @@
 package dev.xernas.oxygen.engine.resource.formats;
 
+import dev.xernas.oxygen.engine.material.DefaultMaterial;
 import dev.xernas.oxygen.engine.material.Material;
 import dev.xernas.oxygen.engine.resource.IFormat;
 import dev.xernas.oxygen.engine.resource.ResourceManager;
@@ -49,7 +50,7 @@ public class ObjFormat implements IFormat {
 
     @Override
     public Model toModel(Material material) {
-        Material newMaterial = material == null ? Material.DEFAULT : new Material(material, textured);
+        Material newMaterial = material == null ? new DefaultMaterial() : material;
         return new Model(vertices, indices, texCoords, normals, newMaterial);
     }
 

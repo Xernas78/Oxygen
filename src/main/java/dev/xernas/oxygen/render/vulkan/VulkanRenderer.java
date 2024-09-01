@@ -1,7 +1,7 @@
 package dev.xernas.oxygen.render.vulkan;
 
 import dev.xernas.oxygen.Oxygen;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
 import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
@@ -94,15 +94,15 @@ public class VulkanRenderer implements IRenderer {
     }
 
     @Override
-    public void loadSceneObjects(List<SceneObject> sceneObjects) throws OxygenException {
-        for (SceneObject sceneObject : sceneObjects) {
-            loadSceneObject(sceneObject);
+    public void loadSceneObjects(List<SceneEntity> sceneEntities) throws OxygenException {
+        for (SceneEntity sceneEntity : sceneEntities) {
+            loadSceneObject(sceneEntity);
         }
     }
 
     @Override
-    public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
-        ModelRenderer modelRenderer = sceneObject.getBehavior(ModelRenderer.class);
+    public void loadSceneObject(SceneEntity sceneEntity) throws OxygenException {
+        ModelRenderer modelRenderer = sceneEntity.getBehavior(ModelRenderer.class);
         if (modelRenderer != null) vulkanModels.add(VulkanModel.transformModel(modelRenderer.getModelData(), commandPool, graphicsQueue));
     }
 

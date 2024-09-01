@@ -1,5 +1,6 @@
 package dev.xernas.oxygen.render.opengl.model;
 
+import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
@@ -33,6 +34,7 @@ public class OGLModelData implements IModelData {
     private final float[] textureCoords;
     private final Path texturePath;
     private final int uniqueId = createUniqueId();
+    private final boolean is2D;
 
     private int id;
     private int indicesCount;
@@ -49,6 +51,7 @@ public class OGLModelData implements IModelData {
         this.normals = normals;
         this.textureCoords = textureCoords;
         this.texturePath = texturePath;
+        this.is2D = process2D();
     }
 
     @Override
@@ -140,6 +143,10 @@ public class OGLModelData implements IModelData {
         return id;
     }
 
+    public boolean is2D() {
+        return is2D;
+    }
+
     public int getIndicesCount() {
         return indicesCount;
     }
@@ -152,6 +159,15 @@ public class OGLModelData implements IModelData {
         int comparisonId = modelData == null ? -1 : modelData.id;
         int comparisonTextureId = modelData == null ? -1 : modelData.textureId;
         return id == comparisonId && textureId == comparisonTextureId;
+    }
+
+    public boolean process2D() {
+        for (int i = 0; i < vertices.length; i += 3) {
+            if (vertices[i + 2] != 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void reset() {

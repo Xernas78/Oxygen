@@ -20,10 +20,17 @@ uniform vec3 lightColor[10];
 uniform vec3 specularColor[10];
 uniform float lightIntensity[10];
 
+uniform bool visible;
+
 out vec4 uFragColor;
 
 void main()
 {
+
+    if(!visible) {
+        discard;
+    }
+
     vec3 normal = normalize(surfaceNormal);
     vec3 toCamera = normalize(toCameraDir);
 

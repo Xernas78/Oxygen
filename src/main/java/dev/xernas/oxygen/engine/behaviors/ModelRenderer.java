@@ -2,7 +2,9 @@ package dev.xernas.oxygen.engine.behaviors;
 
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
+import dev.xernas.oxygen.engine.material.Material;
+import dev.xernas.oxygen.engine.material.TexturedMaterial;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.render.opengl.model.OGLModel;
@@ -30,9 +32,11 @@ public class ModelRenderer implements Behavior {
     }
 
     @Override
-    public final void awake(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public final void awake(Oxygen oxygen, SceneEntity parent) throws OxygenException {
         if (Oxygen.getLib() == Lib.OPENGL) {
-            modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial().getTexturePath());
+            Oxygen.LOGGER.debug("Material textured: " + (model.getMaterial() instanceof TexturedMaterial), false);
+            Oxygen.LOGGER.debug("Material: " + model.getMaterial().getClass().getSimpleName(), false);
+            modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial() instanceof TexturedMaterial ? ((TexturedMaterial)model.getMaterial()).getTexturePath() : null);
             oglModel = OGLModel.transformModel(modelData);
         } else if (Oxygen.getLib() == Lib.VULKAN) {
             modelData = new VulkanModelData(Oxygen.getVulkanModelIdCounter(), Collections.singletonList(new VulkanModelData.MeshData(model.getVertices(), model.getIndices())));
@@ -41,24 +45,26 @@ public class ModelRenderer implements Behavior {
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void start(Oxygen oxygen, SceneEntity parent) throws OxygenException {
 
     }
 
     @Override
-    public void update(Oxygen oxygen, SceneObject parent) {
+    public void update(Oxygen oxygen, SceneEntity parent) {
 
     }
 
     @Override
-    public final void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+    public final void render(OGLRenderer renderer, SceneEntity parent) throws OxygenException {
         if (modelData == null) return;
         OGLModelData currentModelData = oglModel.getModelData();
+
+        renderer.getCurrentShaderProgram().setUniform("visible", parent.isVisible());
 
         if (renderer.isFirstOfBatch()) {
             renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
             renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
-            renderer.getCurrentShaderProgram().setUniform("numTextureTiles", model.getMaterial().getTextureTiles());
+            if (model.getMaterial() instanceof TexturedMaterial texturedMaterial) renderer.getCurrentShaderProgram().setUniform("numTextureTiles", texturedMaterial.getTextureTiles());
             renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
             renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
             renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
@@ -67,13 +73,17 @@ public class ModelRenderer implements Behavior {
             if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
         }
 
+        //if (currentModelData.is2D()) renderer.disableDepthTest();
+
         renderer.drawElements(currentModelData);
+
+        //if (currentModelData.is2D()) renderer.enableDepthTest();
 
         if (renderer.isFirstOfBatch()) if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
     }
 
     @Override
-    public final void cleanup(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public final void cleanup(Oxygen oxygen, SceneEntity parent) throws OxygenException {
         oglModel.cleanup();
     }
 

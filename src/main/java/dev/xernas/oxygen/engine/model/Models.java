@@ -1,8 +1,11 @@
 package dev.xernas.oxygen.engine.model;
 
+import dev.xernas.oxygen.engine.material.DefaultMaterial;
 import dev.xernas.oxygen.engine.material.Material;
 
 public class Models {
+
+    private static final Material DEFAULT_MATERIAL = new DefaultMaterial();
 
     private static Model generateCuboid(int width, int height, int depth) {
         float[] vertices = new float[] {
@@ -73,33 +76,10 @@ public class Models {
                 1, 0
         };
 
-        return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
+        return new Model(vertices, indices, normals, texCoords, DEFAULT_MATERIAL);
     }
 
     private static Model generatePlane(int width, int height) {
-//        float[] vertices = new float[] {
-//                -width, 0, height,
-//                -width, 0, -height,
-//                width, 0, -height,
-//                width, 0, height
-//        };
-//        int[] indices = new int[] {
-//                0, 1, 3,
-//                3, 1, 2
-//        };
-//        float[] normals = new float[] {
-//                0, 1, 0,
-//                0, 1, 0,
-//                0, 1, 0,
-//                0, 1, 0
-//        };
-//        float[] texCoords = new float[] {
-//                0, 0,
-//                0, 1,
-//                1, 1,
-//                1, 0
-//        };
-//        return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
         return generateSubdividedPlane(2, width, height);
     }
 
@@ -138,7 +118,7 @@ public class Models {
                 indices[pointer++] = bottomRight;
             }
         }
-        return new Model(vertices, indices, normals, textureCoords, Material.DEFAULT);
+        return new Model(vertices, indices, normals, textureCoords, DEFAULT_MATERIAL);
     }
 
     private static Model generateSphere(int resolution, int radius) {
@@ -187,16 +167,68 @@ public class Models {
                 int second = first + resolution + 1;
 
                 indices[indexPointer++] = first;
-                indices[indexPointer++] = second;
                 indices[indexPointer++] = first + 1;
+                indices[indexPointer++] = second;
 
                 indices[indexPointer++] = second;
-                indices[indexPointer++] = second + 1;
                 indices[indexPointer++] = first + 1;
+                indices[indexPointer++] = second + 1;
             }
         }
 
-        return new Model(vertices, indices, normals, texCoords, Material.DEFAULT);
+        return new Model(vertices, indices, normals, texCoords, DEFAULT_MATERIAL);
+    }
+
+    private static Model generateQuad(float width, float height) {
+        float[] vertices = new float[] {
+                -width, height, 0,
+                -width, -height, 0,
+                width, -height, 0,
+                width, height, 0
+        };
+        int[] indices = new int[] {
+                0, 1, 3,
+                3, 1, 2
+        };
+        float[] texCoords = new float[] {
+                0, 0,
+                0, 1,
+                1, 1,
+                1, 0
+        };
+        return new Model(vertices, indices, null, texCoords, DEFAULT_MATERIAL);
+    }
+
+    private static Model generateCircle(int resolution, float radius) {
+        int vertexCount = resolution + 1;
+        float[] vertices = new float[vertexCount * 3];
+        float[] texCoords = new float[vertexCount * 2];
+        int[] indices = new int[3 * resolution];
+
+        int vertexPointer = 0;
+        for (int i = 0; i < vertexCount; i++) {
+            float angle = (float) (i * 2 * Math.PI / resolution);
+            float x = (float) (radius * Math.cos(angle));
+            float y = (float) (radius * Math.sin(angle));
+
+            vertices[vertexPointer * 3] = x;
+            vertices[vertexPointer * 3 + 1] = y;
+            vertices[vertexPointer * 3 + 2] = 0;
+
+            texCoords[vertexPointer * 2] = 0.5f + 0.5f * (float) Math.cos(angle);
+            texCoords[vertexPointer * 2 + 1] = 0.5f + 0.5f * (float) Math.sin(angle);
+
+            vertexPointer++;
+        }
+
+        int indexPointer = 0;
+        for (int i = 0; i < resolution; i++) {
+            indices[indexPointer++] = 0;
+            indices[indexPointer++] = i + 1;
+            indices[indexPointer++] = i + 2;
+        }
+
+        return new Model(vertices, indices, null, texCoords, DEFAULT_MATERIAL);
     }
 
     public static Model getCuboid(int width, int height, int depth) {
@@ -224,5 +256,21 @@ public class Models {
 
     public static Model getSphere(int resolution, int radius) {
         return generateSphere(resolution, radius).copy();
+    }
+
+    public static Model getQuad(float width, float height) {
+        return generateQuad(width, height).copy();
+    }
+
+    public static Model getQuad(float size) {
+        return getQuad(size, size);
+    }
+
+    public static Model getCircle(int resolution, float radius) {
+        return generateCircle(resolution, radius).copy();
+    }
+
+    public static Model getCircle(float radius) {
+        return getCircle(64, radius);
     }
 }

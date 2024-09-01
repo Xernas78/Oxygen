@@ -10,13 +10,14 @@ import dev.xernas.oxygen.engine.model.Model;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SceneObject {
+public abstract class SceneEntity {
 
     private final List<Behavior> behaviors = new ArrayList<>();
 
     private Transform transform;
     private Model model;
     private String shaderName = "default";
+    private boolean visible = true;
 
     public void setTransform(Transform transform) {
         if (transform != null) {
@@ -40,6 +41,10 @@ public abstract class SceneObject {
         this.shaderName = shaderName;
     }
 
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
     public List<Behavior> getDefaultBehaviors() {
         List<Behavior> behaviors = new ArrayList<>();
         if (transform != null) behaviors.add(transform);
@@ -50,6 +55,7 @@ public abstract class SceneObject {
     public abstract List<Behavior> getBehaviors();
 
     public final void awakeBehaviors(Oxygen oxygen) throws OxygenException {
+        System.out.println("Awaking object "  + this.getClass().getSimpleName());
         behaviors.addAll(getBehaviors());
         behaviors.addAll(getDefaultBehaviors());
         removeDuplicateBehaviors();
@@ -83,6 +89,10 @@ public abstract class SceneObject {
         return shaderName;
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
     public final <T> T getBehavior(Class<? extends Behavior> behaviorClass) {
         for (Behavior behavior : behaviors) {
             if (behavior.getClass().equals(behaviorClass)) {
@@ -107,11 +117,15 @@ public abstract class SceneObject {
         }
     }
 
-    public static void instantiate(Oxygen oxygen, SceneObject object) throws OxygenException {
+    public static void instantiate(Oxygen oxygen, SceneEntity object) throws OxygenException {
         instantiate(oxygen, Oxygen.getCurrentScene(), object);
     }
 
-    public static void instantiate(Oxygen oxygen, Scene scene, SceneObject object) throws OxygenException {
+    public static void instantiate(Oxygen oxygen, Scene scene, SceneEntity object) throws OxygenException {
+        if (!Oxygen.isRunning()) {
+            scene.addObject(object);
+            return;
+        }
         scene.addObject(object);
         object.awakeBehaviors(oxygen);
         object.startBehaviors(oxygen);

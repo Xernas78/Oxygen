@@ -1,7 +1,6 @@
 package dev.xernas.oxygen.engine.camera;
 
-import dev.xernas.oxygen.Oxygen;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
@@ -36,7 +35,7 @@ public class CameraTransform extends Transform {
     }
 
     @Override
-    public void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+    public void render(OGLRenderer renderer, SceneEntity parent) throws OxygenException {
         super.render(renderer, parent);
         renderer.getCurrentShaderProgram().setUniform("viewMatrix", TransformUtils.createViewMatrix(this));
     }

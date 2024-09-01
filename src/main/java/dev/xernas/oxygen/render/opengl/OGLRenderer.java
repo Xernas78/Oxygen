@@ -2,7 +2,7 @@ package dev.xernas.oxygen.render.opengl;
 
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.Window;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.behaviors.LightSource;
 import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
 import dev.xernas.oxygen.exception.OpenGLException;
@@ -21,9 +21,8 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class OGLRenderer implements IRenderer {
 
-    private static final Map<String, Map<Integer, List<SceneObject>>> batches = new HashMap<>();
+    private static final Map<String, Map<Integer, List<SceneEntity>>> batches = new HashMap<>();
 
-    private final List<SceneObject> noModelSceneObjects = new ArrayList<>();
     private final Map<String, OGLShaderProgram> shaderPrograms = new HashMap<>();
 
     private String currentShaderProgramKey;
@@ -43,24 +42,26 @@ public class OGLRenderer implements IRenderer {
         ModelRenderer.bindsPerFrame = 0;
         ModelRenderer.unbindsPerFrame = 0;
         for (String shaderName : batches.keySet()) {
-            Map<Integer, List<SceneObject>> modelBatches = OGLRenderer.batches.get(shaderName);
+            Map<Integer, List<SceneEntity>> modelBatches = OGLRenderer.batches.get(shaderName);
+            Oxygen.LOGGER.debug("------------------------------------", true);
+            Oxygen.LOGGER.debug("- Rendering shader program: " + shaderName, true);
             currentShaderProgramKey = shaderName;
             getCurrentShaderProgram().bind();
             getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
-
-            for (SceneObject sceneObject : noModelSceneObjects) {
-                sceneObject.renderBehaviors(this);
-            }
+            getCurrentShaderProgram().setUniform("orthoMatrix", TransformUtils.createOrthoMatrix(window));
 
             for (Integer modelData : modelBatches.keySet()) {
-                List<SceneObject> sceneObjects = modelBatches.get(modelData);
-                bindModel(OGLModel.byId(modelData).getModelData());
+                List<SceneEntity> sceneEntities = modelBatches.get(modelData);
+
+                Oxygen.LOGGER.debug("   - Rendering " + sceneEntities.size() + " models data with id : " + modelData, true);
+
+                if (modelData != -1) bindModel(OGLModel.byId(modelData).getModelData());
                 firstOfBatch = true;
-                for (SceneObject sceneObject : sceneObjects) {
-                    sceneObject.renderBehaviors(this);
+                for (SceneEntity sceneEntity : sceneEntities) {
+                    sceneEntity.renderBehaviors(this);
                     firstOfBatch = false;
                 }
-                unbindModel(OGLModel.byId(modelData).getModelData());
+                if (modelData != -1) unbindModel(OGLModel.byId(modelData).getModelData());
             }
             getCurrentShaderProgram().unbind();
         }
@@ -84,29 +85,27 @@ public class OGLRenderer implements IRenderer {
         glDrawElements(GL_TRIANGLES, currentModelData.getIndicesCount(), GL_UNSIGNED_INT, 0);
     }
 
-    public static void addSceneObjectToBatch(SceneObject sceneObject, Integer modelData) {
-        Map<Integer, List<SceneObject>> modelBatches = batches.get(sceneObject.getShaderName());
+    public static void addSceneObjectToBatch(SceneEntity sceneEntity, Integer modelData) {
+        Map<Integer, List<SceneEntity>> modelBatches = batches.get(sceneEntity.getShaderName());
         if (modelBatches == null) modelBatches = new HashMap<>();
-        List<SceneObject> modelBatch = modelBatches.get(modelData);
+        List<SceneEntity> modelBatch = modelBatches.get(modelData);
         if (modelBatch == null) modelBatch = new ArrayList<>();
-        modelBatch.add(sceneObject);
+        modelBatch.add(sceneEntity);
         modelBatches.put(modelData, modelBatch);
-        batches.put(sceneObject.getShaderName(), modelBatches);
+        batches.put(sceneEntity.getShaderName(), modelBatches);
     }
 
     @Override
-    public void loadSceneObjects(List<SceneObject> sceneObjects) throws OxygenException {
-        for (SceneObject sceneObject : sceneObjects) loadSceneObject(sceneObject);
+    public void loadSceneObjects(List<SceneEntity> sceneEntities) {
+        for (SceneEntity sceneEntity : sceneEntities) loadSceneObject(sceneEntity);
     }
 
     @Override
-    public void loadSceneObject(SceneObject sceneObject) throws OxygenException {
-        ModelRenderer modelRenderer = sceneObject.getBehavior(ModelRenderer.class);
-        if (modelRenderer == null) this.noModelSceneObjects.add(sceneObject);
-        else {
-            OGLModelData oglModelData = (OGLModelData) modelRenderer.getModelData();
-            addSceneObjectToBatch(sceneObject, oglModelData.getId());
-        }
+    public void loadSceneObject(SceneEntity sceneEntity) {
+        ModelRenderer modelRenderer = sceneEntity.getBehavior(ModelRenderer.class);
+        int modelDataId = -1;
+        if (modelRenderer != null) modelDataId = ((OGLModelData) modelRenderer.getModelData()).getId();
+        addSceneObjectToBatch(sceneEntity, modelDataId);
     }
 
     public void loadShaderPrograms(List<OGLShaderProgram> shaderPrograms) {
@@ -124,9 +123,8 @@ public class OGLRenderer implements IRenderer {
         loadShaderPrograms(Oxygen.OXYGEN_RESOURCE_MANAGER.getShadersFromShadersDir());
         loadShaderPrograms(Oxygen.getRemoteResourceManager().getShadersFromShadersDir());
         for (OGLShaderProgram shaderProgram : shaderPrograms.values()) shaderProgram.init();
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        enableDepthTest();
+        enableBackfaceCulling();
     }
 
     public void enableBackfaceCulling() {
@@ -138,8 +136,15 @@ public class OGLRenderer implements IRenderer {
         glDisable(GL_CULL_FACE);
     }
 
+    public void enableDepthTest() {
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    public void disableDepthTest() {
+        glDisable(GL_DEPTH_TEST);
+    }
+
     public void clear() {
-        noModelSceneObjects.clear();
         batches.clear();
     }
 

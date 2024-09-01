@@ -1,7 +1,7 @@
 package dev.xernas.oxygen.engine.objects;
 
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.engine.material.Material;
 import dev.xernas.oxygen.engine.model.Model;
@@ -10,13 +10,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SimpleObject extends SceneObject {
+public class SimpleEntity extends SceneEntity {
 
     private final List<Behavior> behaviors = new ArrayList<>();
 
-    public SimpleObject(Transform transform, Model model, Material material, String shader, Behavior... behaviors) {
+    public SimpleEntity(Model model) {
+        setModel(model);
+    }
+
+    public SimpleEntity(Transform transform, Model model) {
         setTransform(transform);
-        model.setMaterial(material);
+        setModel(model);
+    }
+
+    public SimpleEntity(Transform transform, Model model, Material material, String shader, Behavior... behaviors) {
+        setTransform(transform);
+        model.setMaterial(material != null ? material : model.getMaterial());
         setModel(model);
         setShader(shader);
         this.behaviors.addAll(Arrays.asList(behaviors));

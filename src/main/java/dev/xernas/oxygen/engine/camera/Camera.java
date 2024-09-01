@@ -1,14 +1,13 @@
 package dev.xernas.oxygen.engine.camera;
 
-import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
+import dev.xernas.oxygen.engine.SceneEntity;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Camera extends SceneObject {
+public class Camera extends SceneEntity {
 
     private CameraController controller;
 

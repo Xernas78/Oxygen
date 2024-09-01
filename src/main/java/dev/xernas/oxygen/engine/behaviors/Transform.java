@@ -2,10 +2,8 @@ package dev.xernas.oxygen.engine.behaviors;
 
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
-import dev.xernas.oxygen.engine.SceneObject;
-import dev.xernas.oxygen.engine.input.Input;
+import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.exception.OxygenException;
-import dev.xernas.oxygen.render.math.MathUtils;
 import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.render.utils.TransformUtils;
 import org.joml.Vector3f;
@@ -41,17 +39,17 @@ public class Transform implements Behavior {
     }
 
     @Override
-    public void start(Oxygen oxygen, SceneObject parent) throws OxygenException {
+    public void start(Oxygen oxygen, SceneEntity parent) throws OxygenException {
 
     }
 
     @Override
-    public void update(Oxygen oxygen, SceneObject parent) {
+    public void update(Oxygen oxygen, SceneEntity parent) {
 
     }
 
     @Override
-    public void render(OGLRenderer renderer, SceneObject parent) throws OxygenException {
+    public void render(OGLRenderer renderer, SceneEntity parent) throws OxygenException {
         renderer.getCurrentShaderProgram().setUniform("transformMatrix", TransformUtils.createTransformationMatrix(this));
     }
 
