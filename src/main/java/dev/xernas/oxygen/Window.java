@@ -220,6 +220,24 @@ public class Window implements IOxygenLogic {
         return title;
     }
 
+    public boolean isWideScreen() {
+        return width >= height;
+    }
+
+    public float getAspectRatio() {
+        return (float) width / height;
+    }
+
+    public float getXRatio() {
+        if (isWideScreen()) return getAspectRatio();
+        return 1;
+    }
+
+    public float getYRatio() {
+        if (isWideScreen()) return 1;
+        return 1 / getAspectRatio();
+    }
+
     public int getWidth() {
         return width;
     }

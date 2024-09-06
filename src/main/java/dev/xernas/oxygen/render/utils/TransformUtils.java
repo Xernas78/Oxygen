@@ -38,14 +38,14 @@ public class TransformUtils {
         return new Matrix4f().identity()
                 .setPerspective(
                         (float) Math.toRadians(camera.getFov()),
-                        (float) window.getWidth() / window.getHeight(),
+                        window.getAspectRatio(),
                         camera.getzNear(),
                         camera.getzFar()
                 );
     }
 
     public static Matrix4f createOrthoMatrix(Window window) {
-        float aspectRatio = (float) window.getWidth() / window.getHeight();
+        float aspectRatio = window.getAspectRatio();
         float scale = 1.0f; // Adjust this if you want to zoom in/out
 
         float left, right, bottom, top;
