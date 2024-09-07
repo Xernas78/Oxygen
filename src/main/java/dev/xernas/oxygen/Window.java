@@ -68,7 +68,6 @@ public class Window implements IOxygenLogic {
                 (videoMode.width() - width) / 2,
                 (videoMode.height() - height) / 2
         );
-        if (maximized) maximize();
 
         if (Oxygen.getLib() == Lib.OPENGL) {
             glfwMakeContextCurrent(windowHandle);
@@ -89,6 +88,7 @@ public class Window implements IOxygenLogic {
             Oxygen.LOGGER.warn("Failed to load window icon: " + e.getMessage());
         }
 
+        if (maximized) maximize();
     }
 
     @Override
@@ -107,6 +107,7 @@ public class Window implements IOxygenLogic {
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
         if (!vsync) glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
+        glfwWindowHint(GLFW_MAXIMIZED, maximized ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         if (Oxygen.getLib() == Lib.OPENGL) {
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);

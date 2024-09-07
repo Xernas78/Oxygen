@@ -58,18 +58,20 @@ public class ModelRenderer implements Behavior {
         OGLModelData currentModelData = oglModel.getModelData();
 
         renderer.getCurrentShaderProgram().setUniform("visible", parent.isVisible());
+        renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
 
-        if (renderer.isFirstOfBatch()) {
-            renderer.getCurrentShaderProgram().setUniform("textureSampler", 0);
-            renderer.getCurrentShaderProgram().setUniform("isTextured", currentModelData.hasTexture());
-            if (model.getMaterial() instanceof TexturedMaterial texturedMaterial) renderer.getCurrentShaderProgram().setUniform("numTextureTiles", texturedMaterial.getTextureTiles());
-            renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
-            renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
-            renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
-            renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
-
-            if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
+        boolean textured = false;
+        if (model.getMaterial() instanceof TexturedMaterial texturedMaterial) {
+            renderer.getCurrentShaderProgram().setUniform("numTextureTiles", texturedMaterial.getTextureTiles());
+            textured = true;
         }
+        renderer.getCurrentShaderProgram().setUniform("isTextured", textured);
+        renderer.getCurrentShaderProgram().setUniform("illuminable", model.getMaterial().illuminable());
+        renderer.getCurrentShaderProgram().setUniform("reflectionVisibility", model.getMaterial().getReflectionVisibility());
+        renderer.getCurrentShaderProgram().setUniform("reflectivity", model.getMaterial().getReflectivity());
+        renderer.getCurrentShaderProgram().setUniform("baseColor", model.getMaterial().getBaseColor());
+
+        if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
 
         if (currentModelData.is2D()) renderer.disableDepthTest();
 
@@ -77,7 +79,7 @@ public class ModelRenderer implements Behavior {
 
         if (currentModelData.is2D()) renderer.enableDepthTest();
 
-        if (renderer.isFirstOfBatch()) if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
+        if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
     }
 
     @Override

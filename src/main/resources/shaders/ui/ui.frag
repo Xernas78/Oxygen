@@ -18,7 +18,9 @@ void main() {
     }
 
     vec4 textured = texture(textureSampler, texCoordFrag);
-
+    if(textured.a < 0.1) {
+        discard;
+    }
     if(!isTextured) {
         textured = vec4(baseColor, 1);
     }

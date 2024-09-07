@@ -1,4 +1,4 @@
-package dev.xernas.oxygen.engine.objects;
+package dev.xernas.oxygen.engine.entities;
 
 import dev.xernas.oxygen.engine.Behavior;
 import dev.xernas.oxygen.engine.SceneEntity;

@@ -4,14 +4,11 @@ import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.Behavior;
 import dev.xernas.oxygen.engine.Scene;
 import dev.xernas.oxygen.engine.SceneEntity;
-import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.engine.material.Material;
 import dev.xernas.oxygen.engine.model.Model;
 import dev.xernas.oxygen.engine.model.Models;
-import dev.xernas.oxygen.engine.objects.DrawableEntity;
-import dev.xernas.oxygen.engine.objects.SimpleEntity;
+import dev.xernas.oxygen.engine.entities.DrawableEntity;
 import dev.xernas.oxygen.exception.OxygenException;
-import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -50,6 +47,11 @@ public class DrawableScene extends Scene {
 
     public DrawableEntity drawQuad(float x, float y, float width, float height) {
         DrawableEntity entity = getSimpleDrawableEntity(Models.getQuad(width, height), x, y);
+        return drawEntity(entity);
+    }
+
+    public DrawableEntity drawTexturedQuad(float x, float y, float width, float height, Material material) {
+        DrawableEntity entity = getSimpleDrawableEntity(Models.getQuad(width, height).setMaterial(material), x, y);
         return drawEntity(entity);
     }
 

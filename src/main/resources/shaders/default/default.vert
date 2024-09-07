@@ -22,6 +22,7 @@ out vec3 toCameraDir;
 void main()
 {
     vec4 worldPos = transformMatrix * vec4(pos, 1);
+    vec3 cameraPos = (inverse(viewMatrix) * vec4(0, 0, 0, 1)).xyz;
     gl_Position = projectionMatrix * viewMatrix * worldPos;
     pixelPos = pos;
     texCoordFrag = texCoordIn * numTextureTiles;
@@ -31,5 +32,5 @@ void main()
     {
         toLightDir[i] = lightPos[i] - worldPos.xyz;
     }
-    toCameraDir = (inverse(viewMatrix) * vec4(0, 0, 0, 1)).xyz - worldPos.xyz;
+    toCameraDir = cameraPos - worldPos.xyz;
 }
