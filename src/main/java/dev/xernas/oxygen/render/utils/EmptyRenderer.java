@@ -15,12 +15,12 @@ public class EmptyRenderer implements IRenderer {
     }
 
     @Override
-    public void loadSceneObjects(List<SceneEntity> sceneEntities) throws OxygenException {
+    public void loadSceneEntities(List<SceneEntity> sceneEntities) throws OxygenException {
 
     }
 
     @Override
-    public void loadSceneObject(SceneEntity sceneEntity) throws OxygenException {
+    public void loadSceneEntity(SceneEntity sceneEntity) throws OxygenException {
 
     }
 

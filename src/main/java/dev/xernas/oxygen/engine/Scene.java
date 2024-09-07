@@ -19,64 +19,64 @@ public class Scene {
         this.needsCamera = needsCamera;
     }
 
-    private final List<SceneEntity> objects = new ArrayList<>();
+    private final List<SceneEntity> entities = new ArrayList<>();
 
-    public void addObject(SceneEntity object) {
-        objects.add(object);
+    public void addEntity(SceneEntity object) {
+        entities.add(object);
     }
 
-    public Scene addObjects(SceneEntity... objects) {
-        for (SceneEntity object : objects) {
-            addObject(object);
+    public Scene addEntities(SceneEntity... entities) {
+        for (SceneEntity entity : entities) {
+            addEntity(entity);
         }
         return this;
     }
 
     public void load(Oxygen oxygen) throws OxygenException {
-        awakeObjects(oxygen);
-        startObjects(oxygen);
+        awakeEntities(oxygen);
+        startEntities(oxygen);
     }
 
-    public void awakeObjects(Oxygen oxygen) throws OxygenException {
+    public void awakeEntities(Oxygen oxygen) throws OxygenException {
         boolean hasCamera = false;
-        for (SceneEntity object : objects) {
-            object.awakeBehaviors(oxygen);
-            if (object.getClass().equals(Camera.class)) {
+        for (SceneEntity entity : entities) {
+            entity.awakeBehaviors(oxygen);
+            if (entity.getClass().equals(Camera.class)) {
                 hasCamera = true;
             }
         }
         if (!hasCamera && needsCamera) throw new OxygenException("Scene must have a camera");
-        oxygen.getRenderer().loadSceneObjects(objects);
+        oxygen.getRenderer().loadSceneEntities(entities);
     }
 
-    public void startObjects(Oxygen oxygen) throws OxygenException {
-        for (SceneEntity object : objects) object.startBehaviors(oxygen);
+    public void startEntities(Oxygen oxygen) throws OxygenException {
+        for (SceneEntity entity : entities) entity.startBehaviors(oxygen);
     }
 
-    public void updateObjects(Oxygen oxygen) throws OxygenException {
-        List<SceneEntity> updateObjects = new ArrayList<>(objects);
-        for (SceneEntity object : updateObjects) object.updateBehaviors(oxygen);
+    public void updateEntities(Oxygen oxygen) throws OxygenException {
+        List<SceneEntity> updateEntities = new ArrayList<>(entities);
+        for (SceneEntity entity : updateEntities) entity.updateBehaviors(oxygen);
     }
 
-    public void inputObjects(Oxygen oxygen) throws OxygenException {
-        List<SceneEntity> inputObjects = new ArrayList<>(objects);
-        for (SceneEntity object : inputObjects) object.inputBehaviors(oxygen);
+    public void inputEntities(Oxygen oxygen) throws OxygenException {
+        List<SceneEntity> inputEntities = new ArrayList<>(entities);
+        for (SceneEntity entity : inputEntities) entity.inputBehaviors(oxygen);
     }
 
-    public void cleanupObjects(Oxygen oxygen) throws OxygenException {
-        for (SceneEntity object : objects) object.cleanupBehaviors(oxygen);
+    public void cleanupEntities(Oxygen oxygen) throws OxygenException {
+        for (SceneEntity entity : entities) entity.cleanupBehaviors(oxygen);
     }
 
     public Camera getCamera() {
-        Camera camera = getFirstObject(Camera.class);
+        Camera camera = getFirstEntity(Camera.class);
         return camera != null ? camera : new Camera();
     }
 
-    public <T> T getFirstObject(Class<? extends SceneEntity> objectClass) {
-        for (SceneEntity object : objects) {
-            if (object.getClass().equals(objectClass)) {
+    public <T> T getFirstEntity(Class<? extends SceneEntity> objectClass) {
+        for (SceneEntity entity : entities) {
+            if (entity.getClass().equals(objectClass)) {
                 try {
-                    return (T) object;
+                    return (T) entity;
                 } catch (ClassCastException ignore) {
                     return null;
                 }
@@ -85,19 +85,19 @@ public class Scene {
         return null;
     }
 
-    public List<SceneEntity> getObjects() {
-        return new ArrayList<>(this.objects);
+    public List<SceneEntity> getEntities() {
+        return new ArrayList<>(this.entities);
     }
 
-    public <T> List<T> getObjects(Class<? extends SceneEntity> objectClass) {
-        List<T> objects = new ArrayList<>();
-        List<SceneEntity> objectsList = getObjects();
-        for (SceneEntity object : objectsList) {
+    public <T> List<T> getEntities(Class<? extends SceneEntity> objectClass) {
+        List<T> entities = new ArrayList<>();
+        List<SceneEntity> entityList = getEntities();
+        for (SceneEntity object : entityList) {
             if (object.getClass().equals(objectClass)) {
-                objects.add((T) object);
+                entities.add((T) object);
             }
         }
-        return objects;
+        return entities;
     }
 
 }

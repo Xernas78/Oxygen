@@ -11,9 +11,9 @@ public interface IRenderer extends IOxygenLogic {
 
     void render() throws OxygenException;
 
-    void loadSceneObjects(List<SceneEntity> sceneEntities) throws OxygenException;
+    void loadSceneEntities(List<SceneEntity> sceneEntities) throws OxygenException;
 
-    void loadSceneObject(SceneEntity sceneEntity) throws OxygenException;
+    void loadSceneEntity(SceneEntity sceneEntity) throws OxygenException;
 
     void clear();
 

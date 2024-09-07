@@ -114,7 +114,7 @@ public class Oxygen {
 
             window.update();
 
-            scenes.get(currentSceneIndex).inputObjects(this);
+            scenes.get(currentSceneIndex).inputEntities(this);
             window.updateInput();
 
             while (unprocessedTime > FRAMETIME) {
@@ -124,7 +124,7 @@ public class Oxygen {
                     stop();
                     return;
                 }
-                scenes.get(currentSceneIndex).updateObjects(this);
+                scenes.get(currentSceneIndex).updateEntities(this);
                 if (frameCounter >= SECOND) {
                     // Executes every second
                     setFps(frames);
@@ -142,7 +142,7 @@ public class Oxygen {
     }
 
     private void cleanup() throws OxygenException {
-        getCurrentScene().cleanupObjects(this);
+        getCurrentScene().cleanupEntities(this);
         renderer.cleanup();
         window.cleanup();
         ResourceManager.closeFileSystems();
@@ -158,7 +158,7 @@ public class Oxygen {
             LOGGER.warn("Scene does not exist");
             return;
         }
-        getCurrentScene().cleanupObjects(this);
+        getCurrentScene().cleanupEntities(this);
         renderer.clear();
         OGLModelData.reset();
         currentSceneIndex = index;
@@ -181,12 +181,12 @@ public class Oxygen {
         return getScene(currentSceneIndex);
     }
 
-    public static <T> T getFirstObject(Class<? extends SceneEntity> objectClass) {
-        return getCurrentScene().getFirstObject(objectClass);
+    public static <T> T getFirstEntity(Class<? extends SceneEntity> objectClass) {
+        return getCurrentScene().getFirstEntity(objectClass);
     }
 
-    public static <T> List<T> getObjects(Class<? extends SceneEntity> objectClass) {
-        return getCurrentScene().getObjects(objectClass);
+    public static <T> List<T> getEntities(Class<? extends SceneEntity> objectClass) {
+        return getCurrentScene().getEntities(objectClass);
     }
 
     public static void stop() {

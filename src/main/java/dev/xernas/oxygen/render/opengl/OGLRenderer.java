@@ -97,12 +97,12 @@ public class OGLRenderer implements IRenderer {
     }
 
     @Override
-    public void loadSceneObjects(List<SceneEntity> sceneEntities) {
-        for (SceneEntity sceneEntity : sceneEntities) loadSceneObject(sceneEntity);
+    public void loadSceneEntities(List<SceneEntity> sceneEntities) {
+        for (SceneEntity sceneEntity : sceneEntities) loadSceneEntity(sceneEntity);
     }
 
     @Override
-    public void loadSceneObject(SceneEntity sceneEntity) {
+    public void loadSceneEntity(SceneEntity sceneEntity) {
         ModelRenderer modelRenderer = sceneEntity.getBehavior(ModelRenderer.class);
         int modelDataId = -1;
         if (modelRenderer != null) modelDataId = ((OGLModelData) modelRenderer.getModelData()).getId();

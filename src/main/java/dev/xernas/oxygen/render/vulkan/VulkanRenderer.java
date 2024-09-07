@@ -94,14 +94,14 @@ public class VulkanRenderer implements IRenderer {
     }
 
     @Override
-    public void loadSceneObjects(List<SceneEntity> sceneEntities) throws OxygenException {
+    public void loadSceneEntities(List<SceneEntity> sceneEntities) throws OxygenException {
         for (SceneEntity sceneEntity : sceneEntities) {
-            loadSceneObject(sceneEntity);
+            loadSceneEntity(sceneEntity);
         }
     }
 
     @Override
-    public void loadSceneObject(SceneEntity sceneEntity) throws OxygenException {
+    public void loadSceneEntity(SceneEntity sceneEntity) throws OxygenException {
         ModelRenderer modelRenderer = sceneEntity.getBehavior(ModelRenderer.class);
         if (modelRenderer != null) vulkanModels.add(VulkanModel.transformModel(modelRenderer.getModelData(), commandPool, graphicsQueue));
     }

@@ -123,12 +123,12 @@ public abstract class SceneEntity {
 
     public static void instantiate(Oxygen oxygen, Scene scene, SceneEntity object) throws OxygenException {
         if (!Oxygen.isRunning()) {
-            scene.addObject(object);
+            scene.addEntity(object);
             return;
         }
-        scene.addObject(object);
+        scene.addEntity(object);
         object.awakeBehaviors(oxygen);
         object.startBehaviors(oxygen);
-        oxygen.getRenderer().loadSceneObject(object);
+        oxygen.getRenderer().loadSceneEntity(object);
     }
 }
