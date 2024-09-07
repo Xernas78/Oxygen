@@ -44,8 +44,6 @@ public class OGLRenderer implements IRenderer {
         ModelRenderer.unbindsPerFrame = 0;
         for (String shaderName : batches.keySet()) {
             Map<Integer, List<SceneEntity>> modelBatches = OGLRenderer.batches.get(shaderName);
-            Oxygen.LOGGER.debug("------------------------------------", true);
-            Oxygen.LOGGER.debug("- Rendering shader program: " + shaderName, true);
             currentShaderProgramKey = shaderName;
             getCurrentShaderProgram().bind();
             getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
@@ -53,8 +51,6 @@ public class OGLRenderer implements IRenderer {
 
             for (Integer modelData : modelBatches.keySet()) {
                 List<SceneEntity> sceneEntities = modelBatches.get(modelData);
-
-                Oxygen.LOGGER.debug("   - Rendering " + sceneEntities.size() + " models data with id : " + modelData, true);
 
                 if (modelData != -1) bindModel(OGLModel.byId(modelData).getModelData());
                 firstOfBatch = true;

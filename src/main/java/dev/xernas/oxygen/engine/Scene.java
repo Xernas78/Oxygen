@@ -3,6 +3,7 @@ package dev.xernas.oxygen.engine;
 import dev.xernas.oxygen.Oxygen;
 import dev.xernas.oxygen.engine.camera.Camera;
 import dev.xernas.oxygen.exception.OxygenException;
+import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class Scene {
 
     public void cleanupEntities(Oxygen oxygen) throws OxygenException {
         for (SceneEntity entity : entities) entity.cleanupBehaviors(oxygen);
+        OGLModelData.clearClean();
     }
 
     public Camera getCamera() {

@@ -24,6 +24,7 @@ public class OGLModelData implements IModelData {
 
     private static int uniqueIdCounter = 0;
     private static OGLModelData previousModel = null;
+    private static final Map<Integer, Boolean> cleanedUp = new HashMap<>();
 
     private VAO vao;
     private final List<Integer> textures = new ArrayList<>();
@@ -90,12 +91,17 @@ public class OGLModelData implements IModelData {
     public void cleanup() throws OxygenException {
         vao.cleanup();
         for (int texture : textures) glDeleteTextures(texture);
-        if (Objects.nonNull(previousModel)) {
-            if (previousModel.verticesBuffer != verticesBuffer) MemoryUtil.memFree(verticesBuffer);
-            if (previousModel.indicesBuffer != indicesBuffer) MemoryUtil.memFree(indicesBuffer);
-            if (previousModel.textureCoordsBuffer != textureCoordsBuffer) if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
-            if (previousModel.normalsBuffer != normalsBuffer) if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
+        if (!cleanedUp.getOrDefault(id, false)) {
+            MemoryUtil.memFree(verticesBuffer);
+            MemoryUtil.memFree(indicesBuffer);
+            if (hasTexture()) MemoryUtil.memFree(textureCoordsBuffer);
+            if (hasNormals()) MemoryUtil.memFree(normalsBuffer);
+            cleanedUp.put(id, true);
         }
+    }
+
+    public static void clearClean() {
+        cleanedUp.clear();
     }
 
     public void bind() throws OpenGLException {

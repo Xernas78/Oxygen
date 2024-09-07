@@ -34,8 +34,6 @@ public class ModelRenderer implements Behavior {
     @Override
     public final void awake(Oxygen oxygen, SceneEntity parent) throws OxygenException {
         if (Oxygen.getLib() == Lib.OPENGL) {
-            Oxygen.LOGGER.debug("Material textured: " + (model.getMaterial() instanceof TexturedMaterial), false);
-            Oxygen.LOGGER.debug("Material: " + model.getMaterial().getClass().getSimpleName(), false);
             modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial() instanceof TexturedMaterial ? ((TexturedMaterial)model.getMaterial()).getTexturePath(true) : null);
             oglModel = OGLModel.transformModel(modelData);
         } else if (Oxygen.getLib() == Lib.VULKAN) {
@@ -73,11 +71,11 @@ public class ModelRenderer implements Behavior {
             if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
         }
 
-        //if (currentModelData.is2D()) renderer.disableDepthTest();
+        if (currentModelData.is2D()) renderer.disableDepthTest();
 
         renderer.drawElements(currentModelData);
 
-        //if (currentModelData.is2D()) renderer.enableDepthTest();
+        if (currentModelData.is2D()) renderer.enableDepthTest();
 
         if (renderer.isFirstOfBatch()) if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
     }

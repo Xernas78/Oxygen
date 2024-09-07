@@ -55,7 +55,6 @@ public abstract class SceneEntity {
     public abstract List<Behavior> getBehaviors();
 
     public final void awakeBehaviors(Oxygen oxygen) throws OxygenException {
-        System.out.println("Awaking object "  + this.getClass().getSimpleName());
         behaviors.addAll(getBehaviors());
         behaviors.addAll(getDefaultBehaviors());
         removeDuplicateBehaviors();
