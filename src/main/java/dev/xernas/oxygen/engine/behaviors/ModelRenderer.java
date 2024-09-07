@@ -36,7 +36,7 @@ public class ModelRenderer implements Behavior {
         if (Oxygen.getLib() == Lib.OPENGL) {
             Oxygen.LOGGER.debug("Material textured: " + (model.getMaterial() instanceof TexturedMaterial), false);
             Oxygen.LOGGER.debug("Material: " + model.getMaterial().getClass().getSimpleName(), false);
-            modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial() instanceof TexturedMaterial ? ((TexturedMaterial)model.getMaterial()).getTexturePath() : null);
+            modelData = new OGLModelData(model.getVertices(), model.getIndices(), model.getNormals(), model.getTextureCoords(), model.getMaterial() instanceof TexturedMaterial ? ((TexturedMaterial)model.getMaterial()).getTexturePath(true) : null);
             oglModel = OGLModel.transformModel(modelData);
         } else if (Oxygen.getLib() == Lib.VULKAN) {
             modelData = new VulkanModelData(Oxygen.getVulkanModelIdCounter(), Collections.singletonList(new VulkanModelData.MeshData(model.getVertices(), model.getIndices())));
