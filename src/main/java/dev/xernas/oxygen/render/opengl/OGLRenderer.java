@@ -133,6 +133,15 @@ public class OGLRenderer implements IRenderer {
         glDisable(GL_CULL_FACE);
     }
 
+    public void enableAlphaBlending() {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    public void disableAlphaBlending() {
+        glDisable(GL_BLEND);
+    }
+
     public void enableDepthTest() {
         glEnable(GL_DEPTH_TEST);
     }

@@ -54,7 +54,7 @@ public class OLogger {
         for (Object obj : list) {
             builder.append(obj).append(", ");
         }
-        debug(message.replace("{}", builder.toString()), true);
+        debug(message.replace("{}", builder.toString()), false);
     }
 
     public void debugMap(Map<?, ?> map, String message) {
@@ -62,7 +62,7 @@ public class OLogger {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
         }
-        debug(message.replace("{}", builder.toString().isEmpty() ? "Empty" : builder.toString()), true);
+        debug(message.replace("{}", builder.toString().isEmpty() ? "Empty" : builder.toString()), false);
     }
 
 }

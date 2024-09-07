@@ -16,6 +16,7 @@ uniform float ambientLight;
 uniform bool illuminable;
 uniform float reflectivity;
 uniform float reflectionVisibility;
+
 uniform vec3 lightColor[10];
 uniform vec3 specularColor[10];
 uniform float lightIntensity[10];
@@ -56,6 +57,9 @@ void main()
     totalLighting = max(totalDiffuse + totalSpecular, ambientLight);
 
     vec4 textured = texture(textureSampler, texCoordFrag);
+    if(textured.a < 0.1) {
+        discard;
+    }
     if(!isTextured) {
         textured = vec4(baseColor, 1);
     }

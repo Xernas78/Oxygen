@@ -109,11 +109,19 @@ public class OGLShaderProgram implements IOGLObject {
                 IntBuffer size = stack.mallocInt(1);
                 IntBuffer type = stack.mallocInt(1);
                 String name = glGetActiveUniform(programId, i, size, type).trim();
-                int location = glGetUniformLocation(programId, name);
-                uniforms.put(name, location);
+                if (name.endsWith("[0]")) name = name.substring(0, name.length() - 3);
+                if (size.get(0) > 1) {
+                    for (int j = 0; j < size.get(0); j++) {
+                        String arrayName = name + "[" + j + "]";
+                        int location = glGetUniformLocation(programId, arrayName);
+                        uniforms.put(arrayName, location);
+                    }
+                } else {
+                    int location = glGetUniformLocation(programId, name);
+                    uniforms.put(name, location);
+                }
             }
         }
-
     }
 
     @Override

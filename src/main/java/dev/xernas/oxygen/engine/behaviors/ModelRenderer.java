@@ -73,11 +73,17 @@ public class ModelRenderer implements Behavior {
 
         if (model.getMaterial().backfaceCullingDisabled()) renderer.disableBackfaceCulling();
 
-        if (currentModelData.is2D()) renderer.disableDepthTest();
+        if (currentModelData.is2D()) {
+            renderer.enableAlphaBlending();
+            renderer.disableDepthTest();
+        }
 
         renderer.drawElements(currentModelData);
 
-        if (currentModelData.is2D()) renderer.enableDepthTest();
+        if (currentModelData.is2D()) {
+            renderer.enableDepthTest();
+            renderer.disableAlphaBlending();
+        }
 
         if (model.getMaterial().backfaceCullingDisabled()) renderer.enableBackfaceCulling();
     }
