@@ -269,6 +269,7 @@ public class Oxygen {
         private Integer height = 720;
         private Boolean resizable = false;
         private Boolean maximized = false;
+        private Boolean decorated = true;
         private Boolean vsync = false;
         private Boolean debug = false;
         private Lib lib = Lib.OPENGL;
@@ -315,6 +316,11 @@ public class Oxygen {
             return this;
         }
 
+        public Builder decorated(boolean decorated) {
+            this.decorated = decorated;
+            return this;
+        }
+
         public Builder vsync(boolean vsync) {
             this.vsync = vsync;
             return this;
@@ -342,7 +348,7 @@ public class Oxygen {
         }
 
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, decorated, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
         }
     }
 }

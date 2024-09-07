@@ -32,7 +32,8 @@ public class Window implements IOxygenLogic {
     private int width;
     private int height;
     private final boolean resizable;
-    private boolean maximized;
+    private final boolean maximized;
+    private final boolean decorated;
     private final boolean vsync;
     private final Path iconPath;
 
@@ -40,13 +41,14 @@ public class Window implements IOxygenLogic {
 
     private Color clearColor = Color.WHITE;
 
-    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean vsync, Path iconPath) {
+    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean decorated, boolean vsync, Path iconPath) {
         this.defaultTitle = title;
         this.title = title;
         this.width = width;
         this.height = height;
         this.resizable = resizable;
         this.maximized = maximized;
+        this.decorated = decorated;
         this.vsync = vsync;
         this.input = new Input(this, true);
         this.iconPath = iconPath;
@@ -101,8 +103,9 @@ public class Window implements IOxygenLogic {
         if (Oxygen.getLib() == Lib.VULKAN) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        if (resizable) glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
         if (!vsync) glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
         glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         if (Oxygen.getLib() == Lib.OPENGL) {
@@ -152,6 +155,10 @@ public class Window implements IOxygenLogic {
 
     public void hide() {
         glfwHideWindow(windowHandle);
+    }
+
+    public boolean isDecorated() {
+        return decorated;
     }
 
     public void maximize() {
