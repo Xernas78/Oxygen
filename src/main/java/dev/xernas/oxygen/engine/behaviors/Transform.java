@@ -10,6 +10,8 @@ import org.joml.Vector3f;
 
 public class Transform implements Behavior {
 
+    private final Vector3f defaultPos;
+    private final Vector3f defaultRot;
     private Vector3f position;
     private Vector3f rotation;
     private float scale;
@@ -18,24 +20,32 @@ public class Transform implements Behavior {
         this.position = new Vector3f(0, 0, 0);
         this.rotation = new Vector3f(0, 0, 0);
         this.scale = 1;
+        this.defaultPos = new Vector3f(0, 0, 0);
+        this.defaultRot = new Vector3f(0, 0, 0);
     }
 
     public Transform(Vector3f position) {
         this.position = position;
         this.rotation = new Vector3f(0, 0, 0);
         this.scale = 1;
+        this.defaultPos = position;
+        this.defaultRot = new Vector3f(0, 0, 0);
     }
 
     public Transform(Vector3f position, Vector3f rotation) {
         this.position = position;
         this.rotation = rotation;
         this.scale = 1;
+        this.defaultPos = position;
+        this.defaultRot = rotation;
     }
 
     public Transform(Vector3f position, Vector3f rotation, float scale) {
         this.position = position;
         this.rotation = rotation;
         this.scale = scale;
+        this.defaultPos = position;
+        this.defaultRot = rotation;
     }
 
     @Override
@@ -98,8 +108,16 @@ public class Transform implements Behavior {
         return position;
     }
 
+    public Vector3f getOffsetPosition(Vector3f offset) {
+        return new Vector3f(defaultPos).add(offset);
+    }
+
     public Vector3f getRotation() {
         return rotation;
+    }
+
+    public Vector3f getOffsetRotation(Vector3f offset) {
+        return new Vector3f(defaultRot).add(offset);
     }
 
     public float getScale() {

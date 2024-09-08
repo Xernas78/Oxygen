@@ -5,6 +5,7 @@ import dev.xernas.oxygen.Window;
 import dev.xernas.oxygen.engine.SceneEntity;
 import dev.xernas.oxygen.engine.behaviors.LightSource;
 import dev.xernas.oxygen.engine.behaviors.ModelRenderer;
+import dev.xernas.oxygen.engine.behaviors.Transform;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.IRenderer;
@@ -12,6 +13,7 @@ import dev.xernas.oxygen.render.opengl.model.OGLModel;
 import dev.xernas.oxygen.render.opengl.model.OGLModelData;
 import dev.xernas.oxygen.render.opengl.shader.OGLShaderProgram;
 import dev.xernas.oxygen.render.utils.TransformUtils;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -27,7 +29,8 @@ public class OGLRenderer implements IRenderer {
     private final Map<String, OGLShaderProgram> shaderPrograms = new HashMap<>();
 
     private String currentShaderProgramKey;
-    private boolean firstOfBatch = false;
+
+    private static boolean firstOfBatch = false;
 
     private final Window window;
 
@@ -45,13 +48,15 @@ public class OGLRenderer implements IRenderer {
         for (String shaderName : batches.keySet()) {
             Map<Integer, List<SceneEntity>> modelBatches = OGLRenderer.batches.get(shaderName);
             currentShaderProgramKey = shaderName;
+            Oxygen.LOGGER.debug("-------------------------------------", true);
+            Oxygen.LOGGER.debug("- Rendering " + modelBatches.size() + " model batches with shader " + shaderName, true);
             getCurrentShaderProgram().bind();
             getCurrentShaderProgram().setUniform("projectionMatrix", TransformUtils.createProjectionMatrix(window));
             getCurrentShaderProgram().setUniform("orthoMatrix", TransformUtils.createOrthoMatrix(window));
 
             for (Integer modelData : modelBatches.keySet()) {
                 List<SceneEntity> sceneEntities = modelBatches.get(modelData);
-
+                Oxygen.LOGGER.debug("   - Rendering " + sceneEntities.size() + " entities with model data id " + modelData, true);
                 if (modelData != -1) bindModel(OGLModel.byId(modelData).getModelData());
                 firstOfBatch = true;
                 for (SceneEntity sceneEntity : sceneEntities) {
@@ -83,10 +88,8 @@ public class OGLRenderer implements IRenderer {
     }
 
     public static void addSceneObjectToBatch(SceneEntity sceneEntity, Integer modelData) {
-        Map<Integer, List<SceneEntity>> modelBatches = batches.get(sceneEntity.getShaderName());
-        if (modelBatches == null) modelBatches = new HashMap<>();
-        List<SceneEntity> modelBatch = modelBatches.get(modelData);
-        if (modelBatch == null) modelBatch = new ArrayList<>();
+        Map<Integer, List<SceneEntity>> modelBatches = batches.getOrDefault(sceneEntity.getShaderName(), new HashMap<>());
+        List<SceneEntity> modelBatch = modelBatches.getOrDefault(modelData, new ArrayList<>());
         modelBatch.add(sceneEntity);
         modelBatches.put(modelData, modelBatch);
         batches.put(sceneEntity.getShaderName(), modelBatches);
@@ -111,7 +114,7 @@ public class OGLRenderer implements IRenderer {
         }
     }
 
-    public boolean isFirstOfBatch() {
+    public static boolean isFirstOfBatch() {
         return firstOfBatch;
     }
 

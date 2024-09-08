@@ -6,6 +6,7 @@ import dev.xernas.oxygen.engine.utils.GlobalUtilitaries;
 import dev.xernas.oxygen.exception.OpenGLException;
 import dev.xernas.oxygen.exception.OxygenException;
 import dev.xernas.oxygen.render.opengl.IOGLObject;
+import dev.xernas.oxygen.render.opengl.OGLRenderer;
 import dev.xernas.oxygen.render.opengl.utils.OGLUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
@@ -55,10 +56,14 @@ public class OGLShaderProgram implements IOGLObject {
 
     @Override
     public void init() throws OxygenException {
+        Oxygen.LOGGER.debug("----------");
+        Oxygen.LOGGER.debug("Initializing shader program: " + shaderName);
         int vertexShaderId = GlobalUtilitaries.requireNotEquals(glCreateShader(GL_VERTEX_SHADER), 0, "Error creating vertex shader");
         int fragmentShaderId = GlobalUtilitaries.requireNotEquals(glCreateShader(GL_FRAGMENT_SHADER), 0, "Error creating fragment shader");
         String vertexShaderCode = readShader(useDefaultVertex ? "default" : shaderName, vertexShader);
         String fragmentShaderCode = readShader(shaderName, fragmentShader);
+
+        Oxygen.LOGGER.debug(fragmentShaderCode);
 
         programId = GlobalUtilitaries.requireNotEquals(glCreateProgram(), 0, "Error creating shader program");
 
@@ -122,6 +127,9 @@ public class OGLShaderProgram implements IOGLObject {
                 }
             }
         }
+
+        Oxygen.LOGGER.debug("Shader program initialized: " + shaderName);
+        Oxygen.LOGGER.debugMap(uniforms, "Uniforms: {}");
     }
 
     @Override

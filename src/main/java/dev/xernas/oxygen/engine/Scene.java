@@ -69,6 +69,12 @@ public class Scene {
         OGLModelData.clearClean();
     }
 
+    public void setShader(String shaderName) {
+        for (SceneEntity entity : entities) {
+            entity.setShader(shaderName);
+        }
+    }
+
     public Camera getCamera() {
         Camera camera = getFirstEntity(Camera.class);
         return camera != null ? camera : new Camera();

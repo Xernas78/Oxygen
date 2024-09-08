@@ -269,6 +269,7 @@ public class Oxygen {
         private Integer height = 720;
         private Boolean resizable = false;
         private Boolean maximized = false;
+        private Boolean fullscreen = false;
         private Boolean decorated = true;
         private Boolean vsync = false;
         private Boolean debug = false;
@@ -316,6 +317,11 @@ public class Oxygen {
             return this;
         }
 
+        public Builder fullscreen(boolean fullscreen) {
+            this.fullscreen = fullscreen;
+            return this;
+        }
+
         public Builder decorated(boolean decorated) {
             this.decorated = decorated;
             return this;
@@ -348,7 +354,7 @@ public class Oxygen {
         }
 
         public Oxygen build() {
-            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, decorated, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
+            return new Oxygen(applicationName, version, new Window(title, width, height, resizable, maximized, fullscreen, decorated, vsync, iconPath), vsync, debug, lib, remoteResourceManager);
         }
     }
 }

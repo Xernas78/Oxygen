@@ -40,6 +40,10 @@ public class OLogger {
         info(message.replace("{}", obj.toString()));
     }
 
+    public void debug(String message) {
+        debug(message, false);
+    }
+
     public void debug(String message, boolean second) {
         if (second) if (!Oxygen.isInSecond()) return;
         log(Level.DEBUG, message, System.out);

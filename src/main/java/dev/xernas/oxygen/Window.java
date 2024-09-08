@@ -31,6 +31,7 @@ public class Window implements IOxygenLogic {
     private String title;
     private int width;
     private int height;
+    private boolean isFullscreen;
     private final boolean resizable;
     private final boolean maximized;
     private final boolean decorated;
@@ -41,13 +42,14 @@ public class Window implements IOxygenLogic {
 
     private Color clearColor = Color.WHITE;
 
-    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean decorated, boolean vsync, Path iconPath) {
+    public Window(String title, int width, int height, boolean resizable, boolean maximized, boolean fullscreen, boolean decorated, boolean vsync, Path iconPath) {
         this.defaultTitle = title;
         this.title = title;
         this.width = width;
         this.height = height;
         this.resizable = resizable;
         this.maximized = maximized;
+        this.isFullscreen = fullscreen;
         this.decorated = decorated;
         this.vsync = vsync;
         this.input = new Input(this, true);
@@ -89,6 +91,7 @@ public class Window implements IOxygenLogic {
         }
 
         if (maximized) maximize();
+        if (isFullscreen) fullscreen();
     }
 
     @Override
@@ -166,6 +169,27 @@ public class Window implements IOxygenLogic {
         glfwMaximizeWindow(windowHandle);
     }
 
+    public void fullscreen() {
+        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+        if (isMaximized()) restore();
+        maximize();
+        isFullscreen = true;
+    }
+
+    public void windowed() {
+        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
+        restore();
+        isFullscreen = false;
+    }
+
+    public boolean isFullscreen() {
+        return isFullscreen;
+    }
+
+    public boolean isMaximized() {
+        return glfwGetWindowAttrib(windowHandle, GLFW_MAXIMIZED) == GLFW_TRUE;
+    }
+
     public boolean isMinimized() {
         return glfwGetWindowAttrib(windowHandle, GLFW_ICONIFIED) == GLFW_TRUE;
     }
@@ -176,6 +200,13 @@ public class Window implements IOxygenLogic {
 
     public void restore() {
         glfwRestoreWindow(windowHandle);
+        GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        if (videoMode == null) return;
+        glfwSetWindowPos(
+                windowHandle,
+                (videoMode.width() - width) / 2,
+                (videoMode.height() - height) / 2
+        );
     }
 
     public void close() {
